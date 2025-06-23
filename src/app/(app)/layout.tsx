@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutGrid, User, Settings, School, Landmark, Users } from "lucide-react";
+import { LayoutGrid, User, Settings, School, Landmark, Users, GraduationCap } from "lucide-react";
 import { usePathname } from 'next/navigation';
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
@@ -40,15 +40,26 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
                 <span>{isLpk ? "Find Providers" : "Dashboard"}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton href={isLpk ? "/lpk/profile" : "/finance/profile"} isActive={pathname.includes('/profile')} tooltip="My Profile">
-                <User />
-                <span>My Profile</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            
+            {isLpk ? (
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/lpk/students" isActive={pathname.startsWith('/lpk/students')} tooltip="Students">
+                  <GraduationCap />
+                  <span>Students</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ) : (
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/finance/profile" isActive={pathname.startsWith('/finance/profile')} tooltip="My Profile">
+                  <User />
+                  <span>My Profile</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+
             {isLpk && (
               <SidebarMenuItem>
-                <SidebarMenuButton href="/lpk/users" isActive={pathname.includes('/users')} tooltip="User Management">
+                <SidebarMenuButton href="/lpk/users" isActive={pathname.startsWith('/lpk/users')} tooltip="User Management">
                   <Users />
                   <span>User Management</span>
                 </SidebarMenuButton>

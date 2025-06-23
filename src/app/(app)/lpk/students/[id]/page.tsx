@@ -1,0 +1,104 @@
+import { students } from "@/lib/data";
+import { notFound } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, AtSign, Calendar, GraduationCap, Percent, Phone, Pin } from "lucide-react";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+
+const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
+  "Active": "default",
+  "Completed": "secondary",
+  "Withdrawn": "destructive"
+};
+
+export default function StudentDetailPage({ params }: { params: { id: string } }) {
+  const student = students.find(s => s.id === params.id);
+
+  if (!student) {
+    notFound();
+  }
+
+  return (
+    <div className="space-y-6 md:space-y-8">
+       <Link href="/lpk/students" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Student List
+        </Link>
+        
+      <header className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left gap-6">
+        <Avatar className="h-24 w-24 md:h-32 md:w-32 text-4xl">
+            <AvatarImage src={student.avatar} alt={student.name} data-ai-hint={student.dataAiHint} />
+            <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+        </Avatar>
+        <div className="flex-grow">
+            <div className="flex items-center justify-center md:justify-start gap-4">
+                <h1 className="text-3xl md:text-4xl font-headline font-bold text-primary">{student.name}</h1>
+                <Badge variant={statusVariant[student.status] || 'default'} className="text-sm">{student.status}</Badge>
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-muted-foreground justify-center md:justify-start">
+                <GraduationCap className="w-5 h-5" />
+                <p className="text-lg">{student.program}</p>
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground justify-center md:justify-start">
+                 <Calendar className="w-4 h-4" />
+                <span>Enrolled on {new Date(student.enrollmentDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+        </div>
+      </header>
+
+      <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="lg:col-span-2 space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-2xl flex items-center gap-2"><Percent className="w-6 h-6 text-primary" /> Course Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                            <Progress value={student.progress} className="w-full h-3" />
+                            <span className="font-bold text-primary text-lg">{student.progress}%</span>
+                        </div>
+                        <Separator />
+                        <h4 className="font-semibold text-lg">Grades & Modules</h4>
+                         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+                            {Object.entries(student.grades).map(([module, grade]) => (
+                                <div key={module} className="flex justify-between items-center text-sm">
+                                    <span className="text-muted-foreground">{module}</span>
+                                    <span className="font-medium">{grade}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-2xl">Contact Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-start gap-3">
+                        <AtSign className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                        <a href={`mailto:${student.email}`} className="text-sm hover:underline break-all">{student.email}</a>
+                    </div>
+                     <div className="flex items-start gap-3">
+                        <Phone className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                        <span className="text-sm">{student.contact.phone}</span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                        <Pin className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                        <span className="text-sm">{student.contact.address}</span>
+                    </div>
+                </CardContent>
+            </Card>
+            <Button className="w-full">Contact Student</Button>
+        </div>
+      </div>
+    </div>
+  );
+}

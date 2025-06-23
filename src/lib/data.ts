@@ -79,3 +79,90 @@ export const financialProviders = [
     }
   },
 ];
+
+export const students = [
+  {
+    id: "std-001",
+    name: "Budi Hartono",
+    email: "budi.hartono@example.com",
+    program: "Digital Marketing Bootcamp",
+    status: "Active",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "student portrait",
+    enrollmentDate: "2023-01-15",
+    progress: 75,
+    contact: {
+      phone: "081234567890",
+      address: "Jl. Merdeka No. 1, Jakarta"
+    },
+    grades: {
+      "Introduction": "A",
+      "SEO": "B+",
+      "SEM": "A-",
+      "Social Media": "In Progress"
+    }
+  },
+  {
+    id: "std-002",
+    name: "Citra Dewi",
+    email: "citra.dewi@example.com",
+    program: "Full-Stack Web Development",
+    status: "Completed",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "student portrait",
+    enrollmentDate: "2022-11-20",
+    progress: 100,
+    contact: {
+      phone: "081234567891",
+      address: "Jl. Sudirman No. 2, Bandung"
+    },
+    grades: {
+      "HTML/CSS": "A",
+      "JavaScript": "A",
+      "React": "A-",
+      "Node.js": "B+"
+    }
+  },
+  {
+    id: "std-003",
+    name: "Eka Putra",
+    email: "eka.putra@example.com",
+    program: "UI/UX Design Fundamentals",
+    status: "Active",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "student portrait",
+    enrollmentDate: "2023-02-01",
+    progress: 40,
+     contact: {
+      phone: "081234567892",
+      address: "Jl. Gajah Mada No. 3, Surabaya"
+    },
+    grades: {
+      "Design Thinking": "A",
+      "Wireframing": "B",
+      "Prototyping": "In Progress",
+      "User Testing": "Not Started"
+    }
+  },
+  {
+    id: "std-004",
+    name: "Fitri Indah",
+    email: "fitri.indah@example.com",
+    program: "Data Science with Python",
+    status: "Withdrawn",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "student portrait",
+    enrollmentDate: "2023-01-10",
+    progress: 20,
+     contact: {
+      phone: "081234567893",
+      address: "Jl. Pahlawan No. 4, Medan"
+    },
+    grades: {
+      "Python Basics": "C",
+      "Pandas": "Incomplete",
+      "Matplotlib": "Not Started",
+      "Scikit-learn": "Not Started"
+    }
+  },
+];
