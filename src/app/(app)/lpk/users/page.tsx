@@ -92,7 +92,7 @@ const initialUsers = [
   },
 ];
 
-export default function UserManagementPage() {
+export default function UsersPage() {
   const [users, setUsers] = React.useState(initialUsers);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { toast } = useToast();
@@ -126,7 +126,7 @@ export default function UserManagementPage() {
     <div className="space-y-8">
       <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-headline font-bold text-primary">User Management</h1>
+          <h1 className="text-4xl font-headline font-bold text-primary">Users</h1>
           <p className="text-muted-foreground mt-2">Manage admin and staff users for your LPK.</p>
         </div>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -138,7 +138,7 @@ export default function UserManagementPage() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
+              <DialogTitle>Add User</DialogTitle>
               <DialogDescription>
                 Fill in the details below to add a new user to your LPK.
               </DialogDescription>
@@ -203,7 +203,7 @@ export default function UserManagementPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>User List</CardTitle>
+          <CardTitle>Users</CardTitle>
           <CardDescription>A list of all users in your LPK.</CardDescription>
         </CardHeader>
         <CardContent>

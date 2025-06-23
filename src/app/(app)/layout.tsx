@@ -59,9 +59,9 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
 
             {isLpk && (
               <SidebarMenuItem>
-                <SidebarMenuButton href="/lpk/users" isActive={pathname.startsWith('/lpk/users')} tooltip="User Management">
+                <SidebarMenuButton href="/lpk/users" isActive={pathname.startsWith('/lpk/users')} tooltip="Users">
                   <Users />
-                  <span>User Management</span>
+                  <span>Users</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )}
