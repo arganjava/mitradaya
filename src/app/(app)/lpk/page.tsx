@@ -1,55 +1,12 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
-
-const financialProviders = [
-  {
-    name: "DanaCepat Finance",
-    logo: "https://placehold.co/100x100.png",
-    description: "Quick and easy financing for certified training programs with competitive rates.",
-    tags: ["Personal Loans", "Education Credit"],
-    dataAiHint: "finance logo",
-  },
-  {
-    name: "Maju Bersama Capital",
-    logo: "https://placehold.co/100x100.png",
-    description: "Flexible financing solutions for vocational training and skill development.",
-    tags: ["Micro Loans", "Skill Development Fund"],
-    dataAiHint: "investment logo",
-  },
-  {
-    name: "Amanah Syariah Funding",
-    logo: "https://placehold.co/100x100.png",
-    description: "Sharia-compliant financing for all types of professional training courses.",
-    tags: ["Syariah Compliant", "Interest-Free"],
-    dataAiHint: "islamic finance",
-  },
-  {
-    name: "Global Ed-Venture",
-    logo: "https://placehold.co/100x100.png",
-    description: "Specialized in funding for international standard training and certifications.",
-    tags: ["International Certification", "Study Abroad"],
-    dataAiHint: "education logo",
-  },
-  {
-    name: "Kredit Pintar Edukasi",
-    logo: "https://placehold.co/100x100.png",
-    description: "Smart and accessible educational loans with a fast approval process.",
-    tags: ["Fast Approval", "Online Courses"],
-    dataAiHint: "smart loan",
-  },
-  {
-    name: "Usaha Mandiri Finance",
-    logo: "https://placehold.co/100x100.png",
-    description: "Supporting small and medium enterprises with training-related financing.",
-    tags: ["SME Support", "Corporate Training"],
-    dataAiHint: "business finance",
-  },
-];
+import Link from "next/link";
+import { financialProviders } from "@/lib/data";
 
 export default function LpkDashboardPage() {
   return (
@@ -94,7 +51,7 @@ export default function LpkDashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {financialProviders.map((provider) => (
-          <Card key={provider.name} className="flex flex-col hover:shadow-lg transition-shadow">
+          <Card key={provider.id} className="flex flex-col hover:shadow-lg transition-shadow">
             <CardHeader className="flex-row items-center gap-4">
               <Image
                 src={provider.logo}
@@ -117,7 +74,9 @@ export default function LpkDashboardPage() {
               <p className="text-muted-foreground text-sm">{provider.description}</p>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-primary hover:bg-primary/90">View Profile</Button>
+              <Link href={`/lpk/providers/${provider.id}`} className="w-full">
+                <Button className="w-full bg-primary hover:bg-primary/90">View Profile</Button>
+              </Link>
             </CardFooter>
           </Card>
         ))}
