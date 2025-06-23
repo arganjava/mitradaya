@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, GraduationCap, BookOpen, Users, Settings, User } from 'lucide-react';
+import { LayoutGrid, GraduationCap, BookOpen, Users, Settings, User, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 
@@ -37,7 +37,7 @@ export function BottomNavbar() {
     { href: "/lpk", icon: LayoutGrid, label: "Providers" },
     { href: "/lpk/students", icon: GraduationCap, label: "Students" },
     { href: "/lpk/programs", icon: BookOpen, label: "Programs" },
-    { href: "/lpk/users", icon: Users, label: "Users" },
+    { href: "/lpk/jobs", icon: Briefcase, label: "Jobs" },
     { href: "/lpk/settings", icon: Settings, label: "Settings" },
   ];
 
@@ -51,15 +51,21 @@ export function BottomNavbar() {
 
   const activeItem = React.useMemo(() => {
     let active: NavItem | null = null;
+    // Find the most specific match
     for (const item of navItems) {
-      if (pathname.startsWith(item.href)) {
+      if (pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/lpk' && item.href !== '/finance')) {
         if (!active || item.href.length > active.href.length) {
           active = item;
         }
       }
     }
+     // Fallback for root dashboard pages
+    if (!active) {
+        if (isLpk && pathname === '/lpk') active = lpkNavItems[0];
+        if (!isLpk && pathname === '/finance') active = financeNavItems[0];
+    }
     return active;
-  }, [pathname, navItems]);
+  }, [pathname, navItems, isLpk, lpkNavItems, financeNavItems]);
 
 
   return (

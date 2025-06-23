@@ -185,3 +185,38 @@ export const programs = [
   { id: 'prog-03', name: 'UI/UX Design Fundamentals', duration: '8 Weeks' },
   { id: 'prog-04', name: 'Data Science with Python', duration: '4 Months' },
 ];
+
+export const jobs = [
+  {
+    id: "job-001",
+    title: "Welder",
+    company: "Mitsubishi Heavy Industries, Japan",
+    cost: "Rp 25.000.000",
+    departureDate: "2024-12-15",
+    studentIds: ["std-001", "std-002"],
+  },
+  {
+    id: "job-002",
+    title: "Caregiver",
+    company: "Sakura Home, Japan",
+    cost: "Rp 20.000.000",
+    departureDate: "2024-11-30",
+    studentIds: ["std-003"],
+  },
+  {
+    id: "job-003",
+    title: "Hospitality Staff",
+    company: "Seoul Grand Hotel, South Korea",
+    cost: "Rp 18.000.000",
+    departureDate: "2025-01-20",
+    studentIds: [],
+  },
+  {
+    id: "job-004",
+    title: "Automotive Assembly",
+    company: "Hyundai Motors, South Korea",
+    cost: "Rp 22.000.000",
+    departureDate: "2024-12-01",
+    studentIds: ["std-004"],
+  },
+];
