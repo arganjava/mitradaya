@@ -123,7 +123,7 @@ export default function StudentDetailPage() {
             <Card>
                 <CardHeader className="flex flex-row items-start justify-between">
                     <div>
-                        <CardTitle className="font-headline text-2xl flex items-center gap-2"><Percent className="w-6 h-6 text-primary" /> Course Progress</CardTitle>
+                        <CardTitle className="font-headline text-2xl flex items-center gap-2"><Percent className="w-6 h-6 text-primary" /> Program Progress</CardTitle>
                         <CardDescription>View and manage student grades and modules.</CardDescription>
                     </div>
                      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
