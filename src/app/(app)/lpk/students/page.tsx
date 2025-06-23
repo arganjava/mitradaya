@@ -1,9 +1,11 @@
+
 "use client";
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -21,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Calendar as CalendarIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,21 +43,33 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { students as initialStudents } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const addStudentFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
   program: z.string().min(3, "Program name is required."),
+  dateOfBirth: z.date({
+    required_error: "A date of birth is required.",
+  }),
+  phone: z.string().min(10, "Please enter a valid phone number."),
+  address: z.string().min(10, "Please enter a valid home address."),
+  parentName: z.string().min(2, "Parent's name is required."),
+  previousEducation: z.string().min(3, "Previous education is required."),
 });
 
 type AddStudentFormValues = z.infer<typeof addStudentFormSchema>;
@@ -77,19 +91,31 @@ export default function StudentsPage() {
       name: "",
       email: "",
       program: "",
+      phone: "",
+      address: "",
+      parentName: "",
+      previousEducation: "",
     },
   });
 
   function onSubmit(data: AddStudentFormValues) {
     const newStudent = {
       id: `std-00${students.length + 1}`,
-      ...data,
+      name: data.name,
+      email: data.email,
+      program: data.program,
       status: "Active",
       avatar: "https://placehold.co/100x100.png",
       dataAiHint: "student portrait",
       enrollmentDate: new Date().toISOString().split('T')[0],
+      dateOfBirth: data.dateOfBirth.toISOString().split('T')[0],
+      previousEducation: data.previousEducation,
+      parentName: data.parentName,
       progress: 0,
-      contact: { phone: "", address: "" },
+      contact: { 
+        phone: data.phone,
+        address: data.address,
+       },
       grades: {}
     };
     setStudents([...students, newStudent]);
@@ -117,7 +143,7 @@ export default function StudentsPage() {
               Add Student
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Add New Student</DialogTitle>
               <DialogDescription>
@@ -125,46 +151,141 @@ export default function StudentsPage() {
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Budi Hartono" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="e.g., student@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="program"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Program / Course</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Digital Marketing" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto p-1">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Budi Hartono" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="e.g., student@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="program"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Program / Course</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Digital Marketing" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="dateOfBirth"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Date of Birth</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() || date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., 08123456789" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Home Address</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Full address including city" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="parentName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Parent's Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Slamet Hartono" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="previousEducation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Previous Education</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., SMA Negeri 1" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <DialogFooter>
                   <Button type="submit">Enroll Student</Button>
                 </DialogFooter>

@@ -90,6 +90,9 @@ export const students = [
     avatar: "https://placehold.co/100x100.png",
     dataAiHint: "student portrait",
     enrollmentDate: "2023-01-15",
+    dateOfBirth: "2000-05-20",
+    previousEducation: "SMA Negeri 1 Jakarta",
+    parentName: "Slamet Hartono",
     progress: 75,
     contact: {
       phone: "081234567890",
@@ -111,6 +114,9 @@ export const students = [
     avatar: "https://placehold.co/100x100.png",
     dataAiHint: "student portrait",
     enrollmentDate: "2022-11-20",
+    dateOfBirth: "1999-11-10",
+    previousEducation: "SMK Telkom Bandung",
+    parentName: "Asep Sunandar",
     progress: 100,
     contact: {
       phone: "081234567891",
@@ -132,6 +138,9 @@ export const students = [
     avatar: "https://placehold.co/100x100.png",
     dataAiHint: "student portrait",
     enrollmentDate: "2023-02-01",
+    dateOfBirth: "2001-02-25",
+    previousEducation: "SMA Gajah Mada",
+    parentName: "Joko Widodo",
     progress: 40,
      contact: {
       phone: "081234567892",
@@ -153,6 +162,9 @@ export const students = [
     avatar: "https://placehold.co/100x100.png",
     dataAiHint: "student portrait",
     enrollmentDate: "2023-01-10",
+    dateOfBirth: "2002-08-17",
+    previousEducation: "MAN 2 Medan",
+    parentName: "Bambang Pamungkas",
     progress: 20,
      contact: {
       phone: "081234567893",
