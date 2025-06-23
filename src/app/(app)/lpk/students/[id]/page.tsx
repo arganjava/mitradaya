@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { students as initialStudents } from "@/lib/data";
+import { students as initialStudents, programs } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
@@ -44,7 +45,7 @@ const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | 
 };
 
 const gradeFormSchema = z.object({
-  module: z.string().min(3, "Module name must be at least 3 characters."),
+  module: z.string().min(1, "Please select a module."),
   grade: z.string().min(1, "Grade is required (e.g., A, B+, In Progress)."),
 });
 
@@ -147,9 +148,20 @@ export default function StudentDetailPage() {
                                     render={({ field }) => (
                                         <FormItem>
                                         <FormLabel>Module Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g., Final Project" {...field} />
-                                        </FormControl>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a module/program" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {programs.map((program) => (
+                                                <SelectItem key={program.id} value={program.name}>
+                                                    {program.name}
+                                                </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                         <FormMessage />
                                         </FormItem>
                                     )}
