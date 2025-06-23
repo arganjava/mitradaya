@@ -236,9 +236,9 @@ export default function UsersPage() {
                             <AvatarImage src={user.avatar} alt={user.name} data-ai-hint={user.dataAiHint} />
                             <AvatarFallback>{user.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className="min-w-0">
                             {user.name}
-                            <div className="text-sm text-muted-foreground md:hidden">{user.email}</div>
+                            <div className="text-sm text-muted-foreground md:hidden break-all">{user.email}</div>
                         </div>
                     </div>
                   </TableCell>
