@@ -38,6 +38,7 @@ export function BottomNavbar() {
     { href: "/lpk/students", icon: GraduationCap, label: "Students" },
     { href: "/lpk/programs", icon: BookOpen, label: "Programs" },
     { href: "/lpk/jobs", icon: Briefcase, label: "Jobs" },
+    { href: "/lpk/users", icon: Users, label: "Users" },
     { href: "/lpk/settings", icon: Settings, label: "Settings" },
   ];
 
@@ -70,7 +71,7 @@ export function BottomNavbar() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-card border-t border-border md:hidden">
-      <div className={cn("grid h-full w-full", isLpk ? 'grid-cols-5' : 'grid-cols-3')}>
+      <div className={cn("grid h-full w-full", isLpk ? 'grid-cols-6' : 'grid-cols-3')}>
         {navItems.map((item) => (
             <NavLink
               key={item.href}
