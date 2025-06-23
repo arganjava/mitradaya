@@ -11,6 +11,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import {
   Table,
@@ -55,6 +56,7 @@ import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 const addJobFormSchema = z.object({
   title: z.string().min(3, "Job title must be at least 3 characters."),
@@ -295,8 +297,8 @@ export default function JobsPage() {
         </DialogContent>
       </Dialog>
 
-
-      <Card>
+      {/* Desktop View */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Job List</CardTitle>
           <CardDescription>A list of all available job orders.</CardDescription>
@@ -306,9 +308,9 @@ export default function JobsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Job Title</TableHead>
-                <TableHead className="hidden md:table-cell">Cost</TableHead>
-                <TableHead className="hidden lg:table-cell">Departure</TableHead>
-                <TableHead className="hidden sm:table-cell text-center">Students</TableHead>
+                <TableHead>Cost</TableHead>
+                <TableHead>Departure</TableHead>
+                <TableHead className="text-center">Students</TableHead>
                 <TableHead><span className="sr-only">Actions</span></TableHead>
               </TableRow>
             </TableHeader>
@@ -318,14 +320,10 @@ export default function JobsPage() {
                   <TableCell className="font-medium">
                     <div>{job.title}</div>
                     <div className="text-sm text-muted-foreground">{job.company}</div>
-                     <div className="sm:hidden text-sm text-muted-foreground mt-2 flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        <span>{job.studentIds.length} student(s)</span>
-                    </div>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">{job.cost}</TableCell>
-                  <TableCell className="hidden lg:table-cell">{format(new Date(job.departureDate), "PPP")}</TableCell>
-                  <TableCell className="hidden sm:table-cell text-center">
+                  <TableCell>{job.cost}</TableCell>
+                  <TableCell>{format(new Date(job.departureDate), "PPP")}</TableCell>
+                  <TableCell className="text-center">
                     <div className="flex items-center justify-center gap-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span>{job.studentIds.length}</span>
@@ -355,6 +353,57 @@ export default function JobsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Mobile View */}
+      <div className="md:hidden space-y-4">
+        <h3 className="text-xl font-semibold">Job List</h3>
+        {jobs.map((job) => (
+          <Card key={job.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <CardTitle className="text-lg leading-snug">{job.title}</CardTitle>
+                  <CardDescription>{job.company}</CardDescription>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => handleOpenMapModal(job)}>
+                        Map Students
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+               <Separator />
+                <div className="flex justify-between items-center text-sm pt-3">
+                    <span className="text-muted-foreground">Placement Cost</span>
+                    <span className="font-medium">{job.cost}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Departure</span>
+                    <span className="font-medium">{format(new Date(job.departureDate), "PPP")}</span>
+                </div>
+                 <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Students Mapped</span>
+                     <div className="flex items-center justify-center gap-2 font-medium">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span>{job.studentIds.length}</span>
+                    </div>
+                </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
