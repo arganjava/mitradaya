@@ -92,17 +92,6 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
-          
-          <Separator className="my-4" />
-
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton href={isLpk ? "/finance" : "/lpk"} tooltip={isLpk ? "Switch to Finance" : "Switch to LPK"}>
-                {isLpk ? <Landmark /> : <School />}
-                <span>Switch Role</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
 
         </SidebarContent>
         <SidebarFooter>
