@@ -11,7 +11,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AtSign, Calendar, GraduationCap, Percent, Phone, Pin, Cake, Users, PlusCircle } from "lucide-react";
+import { ArrowLeft, AtSign, Calendar, GraduationCap, Percent, Phone, Pin, Cake, Users, PlusCircle, Camera } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -89,6 +89,24 @@ export default function StudentDetailPage() {
     setIsModalOpen(false);
   }
 
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setStudent(prev => {
+                if (!prev) return prev;
+                return { ...prev, avatar: reader.result as string };
+            });
+            toast({
+                title: "Photo Updated",
+                description: "The student's photo has been changed.",
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+  };
+
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -98,10 +116,20 @@ export default function StudentDetailPage() {
         </Link>
         
       <header className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left gap-6">
-        <Avatar className="h-24 w-24 md:h-32 md:w-32 text-4xl">
-            <AvatarImage src={student.avatar} alt={student.name} data-ai-hint={student.dataAiHint} />
-            <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-        </Avatar>
+        <div className="relative">
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 text-4xl">
+                <AvatarImage src={student.avatar} alt={student.name} data-ai-hint={student.dataAiHint} />
+                <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+            </Avatar>
+             <Button asChild size="icon" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 cursor-pointer">
+                <label htmlFor="avatarInput">
+                    <Camera className="h-4 w-4" />
+                    <span className="sr-only">Change Photo</span>
+                </label>
+            </Button>
+            <input type="file" id="avatarInput" className="hidden" accept="image/*" onChange={handlePhotoChange} />
+        </div>
+
         <div className="flex-grow">
             <div className="flex items-center justify-center md:justify-start gap-4">
                 <h1 className="text-3xl md:text-4xl font-headline font-bold text-primary">{student.name}</h1>

@@ -88,6 +88,7 @@ export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [programFilter, setProgramFilter] = React.useState("all");
   const [statusFilter, setStatusFilter] = React.useState("all");
+  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
 
 
   const form = useForm<AddStudentFormValues>({
@@ -103,6 +104,17 @@ export default function StudentsPage() {
     },
   });
 
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   function onSubmit(data: AddStudentFormValues) {
     const newStudent = {
       id: `std-00${students.length + 1}`,
@@ -110,7 +122,7 @@ export default function StudentsPage() {
       email: data.email,
       program: data.program,
       status: "Active",
-      avatar: "https://placehold.co/100x100.png",
+      avatar: avatarPreview || "https://placehold.co/100x100.png",
       dataAiHint: "student portrait",
       enrollmentDate: new Date().toISOString().split('T')[0],
       dateOfBirth: data.dateOfBirth.toISOString().split('T')[0],
@@ -131,6 +143,7 @@ export default function StudentsPage() {
     });
 
     form.reset();
+    setAvatarPreview(null);
     setIsModalOpen(false);
   }
 
@@ -314,6 +327,21 @@ export default function StudentsPage() {
                       </FormItem>
                     )}
                   />
+                   <FormItem className="sm:col-span-2">
+                        <FormLabel>Student Photo</FormLabel>
+                        <FormControl>
+                          <Input type="file" accept="image/*" onChange={handleAvatarChange} className="cursor-pointer" />
+                        </FormControl>
+                        {avatarPreview && (
+                            <div className="mt-2">
+                                <Avatar className="h-24 w-24">
+                                    <AvatarImage src={avatarPreview} alt="Avatar Preview" />
+                                    <AvatarFallback>P</AvatarFallback>
+                                </Avatar>
+                            </div>
+                        )}
+                        <FormMessage />
+                    </FormItem>
                 </div>
                 <DialogFooter>
                   <Button type="submit">Enroll Student</Button>
