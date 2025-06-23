@@ -113,25 +113,46 @@ export default function LpkSettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="nib">Business License (NIB)</Label>
-                <Input id="nib" type="file" />
+               <div className="space-y-2">
+                <Label htmlFor="akta">Akta Pendirian Lembaga</Label>
+                <Input id="akta" type="file" />
                 <p className="text-xs text-muted-foreground">
-                  Upload your Nomor Induk Berusaha.
+                  Upload a scan of your deed of establishment.
                 </p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="permit">Operational Permit (Izin Operasional)</Label>
-                <Input id="permit" type="file" />
-                <p className="text-xs text-muted-foreground">
-                  Upload your official operational permit from the relevant authority.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="accreditation">Accreditation Certificate</Label>
-                <Input id="accreditation" type="file" />
+               <div className="space-y-2">
+                <Label htmlFor="npwp">NPWP</Label>
+                <Input id="npwp" type="file" />
                  <p className="text-xs text-muted-foreground">
-                  If applicable, upload your LPK accreditation certificate.
+                  Upload your Taxpayer Identification Number card.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="izinOperasional">Izin Operasional LPK (Disnaker)</Label>
+                <Input id="izinOperasional" type="file" />
+                <p className="text-xs text-muted-foreground">
+                  Upload your official operational permit from the Ministry of Manpower.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="kerjasamaSo">Surat Kerja Sama dengan SO (jika ada)</Label>
+                <Input id="kerjasamaSo" type="file" />
+                <p className="text-xs text-muted-foreground">
+                  Upload your cooperation agreement with an SO, if applicable.
+                </p>
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="kurikulum">Modul/Kurikulum Pelatihan</Label>
+                <Input id="kurikulum" type="file" />
+                 <p className="text-xs text-muted-foreground">
+                  Upload your training curriculum document.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sertifikasiInstruktur">Bukti Sertifikasi Instruktur</Label>
+                <Input id="sertifikasiInstruktur" type="file" />
+                 <p className="text-xs text-muted-foreground">
+                  Upload proof of your instructor's certification(s).
                 </p>
               </div>
             </CardContent>
