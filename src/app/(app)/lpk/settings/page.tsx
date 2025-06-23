@@ -28,6 +28,7 @@ export default function LpkSettingsPage() {
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
         </TabsList>
@@ -99,6 +100,43 @@ export default function LpkSettingsPage() {
             </CardContent>
             <CardFooter className="border-t px-6 py-4">
               <Button>Save Changes</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="documents" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Legal Documents</CardTitle>
+              <CardDescription>
+                Upload and manage your LPK's legal documents and certifications.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="nib">Business License (NIB)</Label>
+                <Input id="nib" type="file" />
+                <p className="text-xs text-muted-foreground">
+                  Upload your Nomor Induk Berusaha.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="permit">Operational Permit (Izin Operasional)</Label>
+                <Input id="permit" type="file" />
+                <p className="text-xs text-muted-foreground">
+                  Upload your official operational permit from the relevant authority.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="accreditation">Accreditation Certificate</Label>
+                <Input id="accreditation" type="file" />
+                 <p className="text-xs text-muted-foreground">
+                  If applicable, upload your LPK accreditation certificate.
+                </p>
+              </div>
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button>Save Documents</Button>
             </CardFooter>
           </Card>
         </TabsContent>
