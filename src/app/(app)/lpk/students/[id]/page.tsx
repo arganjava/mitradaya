@@ -1,14 +1,40 @@
+"use client";
 
-import { students } from "@/lib/data";
+import * as React from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+import { students as initialStudents } from "@/lib/data";
 import { notFound } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AtSign, Calendar, GraduationCap, Percent, Phone, Pin, Cake, Users } from "lucide-react";
+import { ArrowLeft, AtSign, Calendar, GraduationCap, Percent, Phone, Pin, Cake, Users, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+
 
 const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
   "Active": "default",
@@ -16,12 +42,50 @@ const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | 
   "Withdrawn": "destructive"
 };
 
+const gradeFormSchema = z.object({
+  module: z.string().min(3, "Module name must be at least 3 characters."),
+  grade: z.string().min(1, "Grade is required (e.g., A, B+, In Progress)."),
+});
+
+type GradeFormValues = z.infer<typeof gradeFormSchema>;
+
+
 export default function StudentDetailPage({ params }: { params: { id: string } }) {
-  const student = students.find(s => s.id === params.id);
+  const { toast } = useToast();
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+  const [student, setStudent] = React.useState(() => 
+    initialStudents.find(s => s.id === params.id)
+  );
+
+  const form = useForm<GradeFormValues>({
+    resolver: zodResolver(gradeFormSchema),
+    defaultValues: {
+      module: "",
+      grade: "",
+    },
+  });
 
   if (!student) {
     notFound();
   }
+
+  function onAddGrade(data: GradeFormValues) {
+    setStudent(prevStudent => {
+        if (!prevStudent) return prevStudent;
+        const newGrades = { ...prevStudent.grades, [data.module]: data.grade };
+        return { ...prevStudent, grades: newGrades };
+    });
+
+    toast({
+        title: "Grade Added!",
+        description: `Grade for "${data.module}" has been added successfully.`,
+    });
+
+    form.reset();
+    setIsModalOpen(false);
+  }
+
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -54,8 +118,60 @@ export default function StudentDetailPage({ params }: { params: { id: string } }
       <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 space-y-6">
             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl flex items-center gap-2"><Percent className="w-6 h-6 text-primary" /> Course Progress</CardTitle>
+                <CardHeader className="flex flex-row items-start justify-between">
+                    <div>
+                        <CardTitle className="font-headline text-2xl flex items-center gap-2"><Percent className="w-6 h-6 text-primary" /> Course Progress</CardTitle>
+                        <CardDescription>View and manage student grades and modules.</CardDescription>
+                    </div>
+                     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Grade
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Add New Grade</DialogTitle>
+                                <DialogDescription>
+                                    Enter the module name and the grade received by the student.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onAddGrade)} className="space-y-4 py-4">
+                                <FormField
+                                    control={form.control}
+                                    name="module"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Module Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g., Final Project" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="grade"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Grade</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g., A+, In Progress, 95" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <DialogFooter>
+                                    <Button type="submit">Save Grade</Button>
+                                </DialogFooter>
+                            </form>
+                            </Form>
+                        </DialogContent>
+                    </Dialog>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
