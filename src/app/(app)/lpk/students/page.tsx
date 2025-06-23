@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle, Calendar as CalendarIcon } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Calendar as CalendarIcon, Search } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +58,7 @@ import { students as initialStudents } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const addStudentFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -84,6 +85,11 @@ export default function StudentsPage() {
   const [students, setStudents] = React.useState(initialStudents);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { toast } = useToast();
+  
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [programFilter, setProgramFilter] = React.useState("all");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+
 
   const form = useForm<AddStudentFormValues>({
     resolver: zodResolver(addStudentFormSchema),
@@ -128,6 +134,24 @@ export default function StudentsPage() {
     form.reset();
     setIsModalOpen(false);
   }
+
+  const uniquePrograms = React.useMemo(() => {
+    const programs = new Set(students.map(s => s.program));
+    return Array.from(programs);
+  }, [students]);
+
+  const filteredStudents = React.useMemo(() => {
+    return students
+      .filter(student =>
+        student.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .filter(student =>
+        programFilter === "all" || student.program === programFilter
+      )
+      .filter(student =>
+        statusFilter === "all" || student.status === statusFilter
+      );
+  }, [students, searchQuery, programFilter, statusFilter]);
 
   return (
     <div className="space-y-8">
@@ -301,6 +325,41 @@ export default function StudentsPage() {
           <CardDescription>A list of all current and past students.</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+            <div className="relative flex-1 w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Search by student name..."
+                className="pl-10 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-4 w-full sm:w-auto">
+                <Select value={programFilter} onValueChange={setProgramFilter}>
+                <SelectTrigger className="w-full sm:w-[240px]">
+                    <SelectValue placeholder="Filter by program" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Programs</SelectItem>
+                    {uniquePrograms.map(program => (
+                    <SelectItem key={program} value={program}>{program}</SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                    <SelectItem value="Withdrawn">Withdrawn</SelectItem>
+                </SelectContent>
+                </Select>
+            </div>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -311,7 +370,7 @@ export default function StudentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {students.map((student) => (
+              {filteredStudents.map((student) => (
                 <TableRow key={student.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
