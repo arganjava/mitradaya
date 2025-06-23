@@ -53,7 +53,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
-import { students as initialStudents } from "@/lib/data";
+import { students as initialStudents, programs } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const addStudentFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
-  program: z.string().min(3, "Program name is required."),
+  program: z.string({ required_error: "Please select a program." }),
   dateOfBirth: z.date({
     required_error: "A date of birth is required.",
   }),
@@ -134,11 +134,6 @@ export default function StudentsPage() {
     setIsModalOpen(false);
   }
 
-  const uniquePrograms = React.useMemo(() => {
-    const programs = new Set(students.map(s => s.program));
-    return Array.from(programs);
-  }, [students]);
-
   const filteredStudents = React.useMemo(() => {
     return students
       .filter(student =>
@@ -202,15 +197,26 @@ export default function StudentsPage() {
                       </FormItem>
                     )}
                   />
-                   <FormField
+                  <FormField
                     control={form.control}
                     name="program"
                     render={({ field }) => (
                       <FormItem className="sm:col-span-2">
                         <FormLabel>Program / Course</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Digital Marketing" {...field} />
-                        </FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a program" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {programs.map((program) => (
+                              <SelectItem key={program.id} value={program.name}>
+                                {program.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -335,14 +341,14 @@ export default function StudentsPage() {
               />
             </div>
             <div className="flex gap-4 w-full sm:w-auto">
-                <Select value={programFilter} onValuechange={setProgramFilter}>
+                <Select value={programFilter} onValueChange={setProgramFilter}>
                 <SelectTrigger className="w-full sm:w-[240px]">
                     <SelectValue placeholder="Filter by program" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">All Programs</SelectItem>
-                    {uniquePrograms.map(program => (
-                    <SelectItem key={program} value={program}>{program}</SelectItem>
+                    {programs.map(program => (
+                    <SelectItem key={program.id} value={program.name}>{program.name}</SelectItem>
                     ))}
                 </SelectContent>
                 </Select>
