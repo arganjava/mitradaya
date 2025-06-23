@@ -56,6 +56,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const addUserFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -71,24 +72,32 @@ const initialUsers = [
     name: "Ahmad Prasetyo",
     email: "ahmad.prasetyo@lpkjaya.com",
     role: "Admin",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "male portrait"
   },
   {
     id: 2,
     name: "Siti Aminah",
     email: "siti.aminah@lpkjaya.com",
     role: "Staff",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "female portrait"
   },
   {
     id: 3,
     name: "Budi Santoso",
     email: "budi.s@lpkjaya.com",
     role: "Staff",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "male portrait"
   },
    {
     id: 4,
     name: "Dewi Lestari",
     email: "dewi.lestari@lpkjaya.com",
     role: "Staff",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "female portrait"
   },
 ];
 
@@ -110,6 +119,8 @@ export default function UsersPage() {
     const newUser = {
       id: users.length + 1,
       ...data,
+      avatar: "https://placehold.co/100x100.png",
+      dataAiHint: "user portrait"
     };
     setUsers([...users, newUser]);
 
@@ -219,7 +230,18 @@ export default function UsersPage() {
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
+                   <TableCell className="font-medium">
+                    <div className="flex items-center gap-3">
+                        <Avatar>
+                            <AvatarImage src={user.avatar} alt={user.name} data-ai-hint={user.dataAiHint} />
+                            <AvatarFallback>{user.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            {user.name}
+                            <div className="text-sm text-muted-foreground md:hidden">{user.email}</div>
+                        </div>
+                    </div>
+                  </TableCell>
                   <TableCell className="hidden md:table-cell">{user.email}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
