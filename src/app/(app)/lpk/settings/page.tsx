@@ -1,0 +1,157 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
+
+export default function LpkSettingsPage() {
+  return (
+    <div className="space-y-8">
+      <header>
+        <h1 className="text-4xl font-headline font-bold text-primary">
+          Settings
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Manage your LPK profile, account, and preferences.
+        </p>
+      </header>
+
+      <Tabs defaultValue="profile" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="appearance">Appearance</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>LPK Profile</CardTitle>
+              <CardDescription>
+                Update your organization's public information.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-start gap-6">
+                <Image
+                  src="https://placehold.co/128x128.png"
+                  alt="LPK Logo"
+                  width={128}
+                  height={128}
+                  className="rounded-lg border p-1"
+                  data-ai-hint="training logo"
+                />
+                <div className="flex-grow">
+                  <Label htmlFor="logo">LPK Logo</Label>
+                  <Input id="logo" type="file" className="mt-2" />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Recommended size: 256x256px
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lpkName">LPK Name</Label>
+                <Input id="lpkName" defaultValue="LPK Jaya Abadi" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lpkDescription">Description</Label>
+                <Textarea
+                  id="lpkDescription"
+                  placeholder="Tell us about your LPK"
+                  defaultValue="Providing top-tier vocational training in technology and digital arts since 2010."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lpkAddress">Address</Label>
+                <Textarea
+                  id="lpkAddress"
+                  placeholder="Your full address"
+                  defaultValue="Jl. Teknologi No. 1, Technopark, Jakarta, Indonesia"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="lpkEmail">Contact Email</Label>
+                  <Input
+                    id="lpkEmail"
+                    type="email"
+                    defaultValue="info@lpkjaya.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lpkPhone">Phone Number</Label>
+                  <Input
+                    id="lpkPhone"
+                    type="tel"
+                    defaultValue="+62 21 1234 5678"
+                  />
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button>Save Changes</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="account" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Account</CardTitle>
+              <CardDescription>
+                Manage your account settings.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  defaultValue="admin@lpkjaya.com"
+                  readOnly
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">New Password</Label>
+                <Input id="password" type="password" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="passwordConfirm">Confirm New Password</Label>
+                <Input id="passwordConfirm" type="password" />
+              </div>
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+              <Button>Update Password</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appearance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appearance</CardTitle>
+              <CardDescription>
+                Customize the look and feel of the application.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Appearance settings will be available in a future update.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
