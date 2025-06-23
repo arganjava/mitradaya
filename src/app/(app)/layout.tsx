@@ -18,6 +18,8 @@ import { LayoutGrid, User, Settings, School, Landmark, Users, GraduationCap, Boo
 import { usePathname } from 'next/navigation';
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { BottomNavbar } from "@/components/bottom-navbar";
 
 // This new component is a child of SidebarProvider, so it can use the useSidebar hook.
 function AppLayoutClient({ children }: { children: React.ReactNode }) {
@@ -25,6 +27,18 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
   const isLpk = pathname.startsWith('/lpk');
   const { state: sidebarState } = useSidebar();
   const isCollapsed = sidebarState === 'collapsed';
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <>
+        <div className="p-4 sm:p-6 pb-20 bg-background min-h-screen">
+          {children}
+        </div>
+        <BottomNavbar />
+      </>
+    );
+  }
 
   return (
     <>
