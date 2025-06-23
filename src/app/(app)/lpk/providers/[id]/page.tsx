@@ -15,24 +15,24 @@ export default function ProviderDetailPage({ params }: { params: { id: string } 
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
        <Link href="/lpk" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Back to Providers List
         </Link>
         
-      <header className="flex flex-col md:flex-row items-start md:items-center gap-6">
+      <header className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left gap-6">
         <Image
             src={provider.logo}
             alt={`${provider.name} logo`}
             width={128}
             height={128}
-            className="rounded-lg border p-1"
+            className="rounded-lg border p-1 w-24 h-24 md:w-32 md:h-32 flex-shrink-0"
             data-ai-hint={provider.dataAiHint}
         />
         <div className="flex-grow">
-            <h1 className="text-4xl font-headline font-bold text-primary">{provider.name}</h1>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <h1 className="text-3xl md:text-4xl font-headline font-bold text-primary">{provider.name}</h1>
+            <div className="flex flex-wrap gap-2 mt-2 justify-center md:justify-start">
                 {provider.tags.map((tag) => (
                     <Badge key={tag} variant="secondary">{tag}</Badge>
                 ))}
@@ -41,8 +41,8 @@ export default function ProviderDetailPage({ params }: { params: { id: string } 
         </div>
       </header>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
+      <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="lg:col-span-2 space-y-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl">Financing Scheme Details</CardTitle>
@@ -59,12 +59,12 @@ export default function ProviderDetailPage({ params }: { params: { id: string } 
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-3">
-                        <AtSign className="w-5 h-5 text-primary" />
-                        <a href={`mailto:${provider.contact.email}`} className="text-sm hover:underline">{provider.contact.email}</a>
+                        <AtSign className="w-5 h-5 text-primary flex-shrink-0" />
+                        <a href={`mailto:${provider.contact.email}`} className="text-sm hover:underline break-all">{provider.contact.email}</a>
                     </div>
                      <div className="flex items-center gap-3">
-                        <Globe className="w-5 h-5 text-primary" />
-                        <a href={provider.contact.website} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline">{provider.contact.website}</a>
+                        <Globe className="w-5 h-5 text-primary flex-shrink-0" />
+                        <a href={provider.contact.website} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline break-all">{provider.contact.website}</a>
                     </div>
                 </CardContent>
             </Card>
