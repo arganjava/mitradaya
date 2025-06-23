@@ -29,7 +29,7 @@ export default function LpkSettingsPage() {
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="bank-account">Bank Account</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
         </TabsList>
 
@@ -162,35 +162,30 @@ export default function LpkSettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="account" className="space-y-4">
+        <TabsContent value="bank-account" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Account</CardTitle>
+              <CardTitle>Bank Account</CardTitle>
               <CardDescription>
-                Manage your account settings.
+                Manage your LPK's bank account for transactions.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  defaultValue="admin@lpkjaya.com"
-                  readOnly
-                />
+                <Label htmlFor="bankName">Bank Name</Label>
+                <Input id="bankName" placeholder="e.g., Bank Central Asia" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
-                <Input id="password" type="password" />
+                <Label htmlFor="accountHolder">Account Holder Name</Label>
+                <Input id="accountHolder" placeholder="e.g., PT LPK Jaya Abadi" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="passwordConfirm">Confirm New Password</Label>
-                <Input id="passwordConfirm" type="password" />
+                <Label htmlFor="accountNumber">Account Number</Label>
+                <Input id="accountNumber" placeholder="e.g., 1234567890" />
               </div>
             </CardContent>
             <CardFooter className="border-t px-6 py-4">
-              <Button>Update Password</Button>
+              <Button>Save Bank Account</Button>
             </CardFooter>
           </Card>
         </TabsContent>
