@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutGrid, User, Settings, School, Landmark } from "lucide-react";
+import { LayoutGrid, User, Settings, School, Landmark, Users } from "lucide-react";
 import { usePathname } from 'next/navigation';
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
@@ -46,6 +46,14 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
                 <span>My Profile</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            {isLpk && (
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/lpk/users" isActive={pathname.includes('/users')} tooltip="User Management">
+                  <Users />
+                  <span>User Management</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
             <SidebarMenuItem>
               <SidebarMenuButton href={isLpk ? "/lpk/settings" : "/finance/settings"} isActive={pathname.includes('/settings')} tooltip="Settings">
                 <Settings />
