@@ -27,7 +27,7 @@ export default function LpkSettingsPage() {
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="profile">Company</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="bank-account">Bank Account</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
