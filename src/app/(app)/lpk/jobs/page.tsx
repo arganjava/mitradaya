@@ -306,9 +306,9 @@ export default function JobsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Job Title</TableHead>
-                <TableHead>Cost</TableHead>
-                <TableHead>Departure</TableHead>
-                <TableHead className="text-center">Students</TableHead>
+                <TableHead className="hidden md:table-cell">Cost</TableHead>
+                <TableHead className="hidden lg:table-cell">Departure</TableHead>
+                <TableHead className="hidden sm:table-cell text-center">Students</TableHead>
                 <TableHead><span className="sr-only">Actions</span></TableHead>
               </TableRow>
             </TableHeader>
@@ -318,10 +318,14 @@ export default function JobsPage() {
                   <TableCell className="font-medium">
                     <div>{job.title}</div>
                     <div className="text-sm text-muted-foreground">{job.company}</div>
+                     <div className="sm:hidden text-sm text-muted-foreground mt-2 flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        <span>{job.studentIds.length} student(s)</span>
+                    </div>
                   </TableCell>
-                  <TableCell>{job.cost}</TableCell>
-                  <TableCell>{format(new Date(job.departureDate), "PPP")}</TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="hidden md:table-cell">{job.cost}</TableCell>
+                  <TableCell className="hidden lg:table-cell">{format(new Date(job.departureDate), "PPP")}</TableCell>
+                  <TableCell className="hidden sm:table-cell text-center">
                     <div className="flex items-center justify-center gap-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span>{job.studentIds.length}</span>
