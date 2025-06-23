@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -50,7 +51,8 @@ const gradeFormSchema = z.object({
 type GradeFormValues = z.infer<typeof gradeFormSchema>;
 
 
-export default function StudentDetailPage({ params }: { params: { id: string } }) {
+export default function StudentDetailPage() {
+  const params = useParams() as { id: string };
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
