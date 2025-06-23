@@ -237,7 +237,7 @@ export default function StudentsPage() {
                     control={form.control}
                     name="phone"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
                           <Input placeholder="e.g., 08123456789" {...field} />
