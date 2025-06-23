@@ -14,20 +14,23 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutGrid, User, Settings, LifeBuoy, LogOut, School, Landmark } from "lucide-react";
+import { LayoutGrid, User, Settings, School, Landmark } from "lucide-react";
 import { usePathname } from 'next/navigation';
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+// This new component is a child of SidebarProvider, so it can use the useSidebar hook.
+function AppLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLpk = pathname.startsWith('/lpk');
+  const { state: sidebarState } = useSidebar();
+  const isCollapsed = sidebarState === 'collapsed';
 
   return (
-    <SidebarProvider>
+    <>
       <Sidebar>
         <SidebarHeader>
-          <Logo isCollapsed={useSidebar().state === 'collapsed'} />
+          <Logo isCollapsed={isCollapsed} />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
@@ -70,7 +73,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <AvatarImage src="https://placehold.co/100x100.png" alt="User" />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
-            <div className={`transition-opacity duration-200 ${useSidebar().state === 'collapsed' ? 'opacity-0' : 'opacity-100'}`}>
+            <div className={`transition-opacity duration-200 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
               <p className="font-semibold text-sm">User Name</p>
               <p className="text-xs text-sidebar-foreground/70">user@example.com</p>
             </div>
@@ -82,6 +85,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </SidebarInset>
+    </>
+  );
+}
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <AppLayoutClient>{children}</AppLayoutClient>
     </SidebarProvider>
   );
 }
