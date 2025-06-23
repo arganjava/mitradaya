@@ -1,3 +1,10 @@
+"use client";
+
+import * as React from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
 import {
   Card,
   CardContent,
@@ -23,8 +30,42 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
-const users = [
+const addUserFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
+  email: z.string().email("Please enter a valid email address."),
+  role: z.enum(["Admin", "Staff"], { required_error: "Role is required." }),
+});
+
+type AddUserFormValues = z.infer<typeof addUserFormSchema>;
+
+const initialUsers = [
   {
     id: 1,
     name: "Ahmad Prasetyo",
@@ -52,6 +93,35 @@ const users = [
 ];
 
 export default function UserManagementPage() {
+  const [users, setUsers] = React.useState(initialUsers);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { toast } = useToast();
+
+  const form = useForm<AddUserFormValues>({
+    resolver: zodResolver(addUserFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      role: "Staff",
+    },
+  });
+
+  function onSubmit(data: AddUserFormValues) {
+    const newUser = {
+      id: users.length + 1,
+      ...data,
+    };
+    setUsers([...users, newUser]);
+
+    toast({
+      title: "User Added!",
+      description: `${data.name} has been successfully added.`,
+    });
+
+    form.reset();
+    setIsModalOpen(false);
+  }
+
   return (
     <div className="space-y-8">
       <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -59,10 +129,76 @@ export default function UserManagementPage() {
           <h1 className="text-4xl font-headline font-bold text-primary">User Management</h1>
           <p className="text-muted-foreground mt-2">Manage admin and staff users for your LPK.</p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add User
-        </Button>
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add User
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New User</DialogTitle>
+              <DialogDescription>
+                Fill in the details below to add a new user to your LPK.
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="e.g., user@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Admin">Admin</SelectItem>
+                          <SelectItem value="Staff">Staff</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button type="submit">Create User</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </header>
 
       <Card>
