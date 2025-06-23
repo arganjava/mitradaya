@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -30,7 +31,7 @@ export default function LpkSettingsPage() {
           <TabsTrigger value="profile">Company</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="bank-account">Bank Account</TabsTrigger>
-          <TabsTrigger value="appearance">Appearance</TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -190,19 +191,36 @@ export default function LpkSettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="appearance" className="space-y-4">
+        <TabsContent value="account" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Appearance</CardTitle>
+              <CardTitle>Account</CardTitle>
               <CardDescription>
-                Customize the look and feel of the application.
+                Manage your account settings.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Appearance settings will be available in a future update.
-              </p>
+            <CardContent className="space-y-4">
+               <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  defaultValue="admin@lpkjaya.com"
+                  readOnly
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">New Password</Label>
+                <Input id="password" type="password" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="passwordConfirm">Confirm New Password</Label>
+                <Input id="passwordConfirm" type="password" />
+              </div>
             </CardContent>
+             <CardFooter className="border-t px-6 py-4">
+              <Button>Update Password</Button>
+            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
