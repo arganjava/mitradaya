@@ -178,3 +178,10 @@ export const students = [
     }
   },
 ];
+
+export const programs = [
+  { id: 'prog-01', name: 'Digital Marketing Bootcamp', duration: '3 Months' },
+  { id: 'prog-02', name: 'Full-Stack Web Development', duration: '6 Months' },
+  { id: 'prog-03', name: 'UI/UX Design Fundamentals', duration: '8 Weeks' },
+  { id: 'prog-04', name: 'Data Science with Python', duration: '4 Months' },
+];

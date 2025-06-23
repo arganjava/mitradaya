@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutGrid, User, Settings, School, Landmark, Users, GraduationCap } from "lucide-react";
+import { LayoutGrid, User, Settings, School, Landmark, Users, GraduationCap, BookOpen } from "lucide-react";
 import { usePathname } from 'next/navigation';
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
@@ -42,12 +42,26 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
             </SidebarMenuItem>
             
             {isLpk ? (
+              <>
                <SidebarMenuItem>
                 <SidebarMenuButton href="/lpk/students" isActive={pathname.startsWith('/lpk/students')} tooltip="Students">
                   <GraduationCap />
                   <span>Students</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/lpk/programs" isActive={pathname.startsWith('/lpk/programs')} tooltip="Programs">
+                  <BookOpen />
+                  <span>Programs</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/lpk/users" isActive={pathname.startsWith('/lpk/users')} tooltip="Users">
+                  <Users />
+                  <span>Users</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              </>
             ) : (
               <SidebarMenuItem>
                 <SidebarMenuButton href="/finance/profile" isActive={pathname.startsWith('/finance/profile')} tooltip="My Profile">
@@ -57,14 +71,6 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
               </SidebarMenuItem>
             )}
 
-            {isLpk && (
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/lpk/users" isActive={pathname.startsWith('/lpk/users')} tooltip="Users">
-                  <Users />
-                  <span>Users</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            )}
             <SidebarMenuItem>
               <SidebarMenuButton href={isLpk ? "/lpk/settings" : "/finance/settings"} isActive={pathname.includes('/settings')} tooltip="Settings">
                 <Settings />
