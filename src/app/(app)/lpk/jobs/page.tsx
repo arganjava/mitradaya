@@ -50,9 +50,11 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
-import { jobs as initialJobs } from "@/lib/data";
-import Link from "next/link";
+import { jobs as initialJobs, students } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const addJobFormSchema = z.object({
   title: z.string().min(3, "Job title must be at least 3 characters."),
@@ -64,11 +66,16 @@ const addJobFormSchema = z.object({
 });
 
 type AddJobFormValues = z.infer<typeof addJobFormSchema>;
+type Job = (typeof initialJobs)[0];
 
 export default function JobsPage() {
   const [jobs, setJobs] = React.useState(initialJobs);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { toast } = useToast();
+
+  const [isMapModalOpen, setIsMapModalOpen] = React.useState(false);
+  const [selectedJob, setSelectedJob] = React.useState<Job | null>(null);
+  const [mappedStudentIds, setMappedStudentIds] = React.useState<string[]>([]);
 
   const form = useForm<AddJobFormValues>({
     resolver: zodResolver(addJobFormSchema),
@@ -98,6 +105,31 @@ export default function JobsPage() {
     form.reset();
     setIsModalOpen(false);
   }
+
+  function handleSaveMapping() {
+    if (!selectedJob) return;
+
+    setJobs(currentJobs =>
+      currentJobs.map(job =>
+        job.id === selectedJob.id ? { ...job, studentIds: mappedStudentIds } : job
+      )
+    );
+
+    toast({
+      title: "Mapping Updated!",
+      description: `Students have been successfully mapped to "${selectedJob.title}".`,
+    });
+
+    setIsMapModalOpen(false);
+    setSelectedJob(null);
+    setMappedStudentIds([]);
+  }
+
+  const handleOpenMapModal = (job: Job) => {
+    setSelectedJob(job);
+    setMappedStudentIds(job.studentIds);
+    setIsMapModalOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -207,6 +239,62 @@ export default function JobsPage() {
           </DialogContent>
         </Dialog>
       </header>
+      
+      <Dialog open={isMapModalOpen} onOpenChange={setIsMapModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Map Students to "{selectedJob?.title}"</DialogTitle>
+            <DialogDescription>
+              Select the students to be placed in this job.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[50vh] pr-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[10px]"></TableHead>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Program</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {students.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell>
+                      <Checkbox
+                        id={`student-${student.id}`}
+                        checked={mappedStudentIds.includes(student.id)}
+                        onCheckedChange={(checked) => {
+                          setMappedStudentIds(prev =>
+                            checked
+                              ? [...prev, student.id]
+                              : prev.filter(id => id !== student.id)
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <label htmlFor={`student-${student.id}`} className="flex items-center gap-3 cursor-pointer">
+                        <Avatar>
+                          <AvatarImage src={student.avatar} alt={student.name} data-ai-hint={student.dataAiHint} />
+                          <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">{student.name}</span>
+                      </label>
+                    </TableCell>
+                    <TableCell>{student.program}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+          <DialogFooter>
+             <Button variant="outline" onClick={() => setIsMapModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveMapping}>Save Mapping</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Card>
         <CardHeader>
@@ -249,8 +337,8 @@ export default function JobsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                         <DropdownMenuItem asChild>
-                           <Link href={`#`}>Map Students</Link>
+                         <DropdownMenuItem onClick={() => handleOpenMapModal(job)}>
+                           Map Students
                         </DropdownMenuItem>
                         <DropdownMenuItem>Edit</DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
