@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -336,7 +335,7 @@ export default function StudentsPage() {
               />
             </div>
             <div className="flex gap-4 w-full sm:w-auto">
-                <Select value={programFilter} onValueChange={setProgramFilter}>
+                <Select value={programFilter} onValuechange={setProgramFilter}>
                 <SelectTrigger className="w-full sm:w-[240px]">
                     <SelectValue placeholder="Filter by program" />
                 </SelectTrigger>
@@ -366,6 +365,7 @@ export default function StudentsPage() {
                 <TableHead>Name</TableHead>
                 <TableHead className="hidden sm:table-cell">Program</TableHead>
                 <TableHead className="hidden md:table-cell">Status</TableHead>
+                <TableHead className="hidden lg:table-cell">Created At</TableHead>
                 <TableHead><span className="sr-only">Actions</span></TableHead>
               </TableRow>
             </TableHeader>
@@ -389,6 +389,9 @@ export default function StudentsPage() {
                     <Badge variant={statusVariant[student.status] || 'default'}>
                       {student.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {format(new Date(student.enrollmentDate), "PPP")}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
