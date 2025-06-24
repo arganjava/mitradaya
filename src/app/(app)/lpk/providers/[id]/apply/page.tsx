@@ -89,8 +89,8 @@ export default function ApplyFinancingPage() {
                 <FormItem>
                   <div className="border rounded-md max-h-[300px] overflow-y-auto">
                     <Table>
-                      <TableHeader className="sticky top-0 bg-card">
-                        <TableRow>
+                      <TableHeader className="sticky top-0 z-10">
+                        <TableRow className="border-b bg-card hover:bg-card">
                           <TableHead className="w-[50px]"></TableHead>
                           <TableHead>Student</TableHead>
                           <TableHead>Program</TableHead>
