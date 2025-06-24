@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -22,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle, Calendar as CalendarIcon, Search } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Calendar as CalendarIcon, Search, ArrowUp, ArrowDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +43,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -53,7 +53,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
-import { students as initialStudents, programs } from "@/lib/data";
+import { students as initialStudents, programs, type Student } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -90,6 +90,9 @@ export default function StudentsPage() {
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
 
+  const [sorting, setSorting] = React.useState<{ column: keyof Pick<Student, 'name' | 'program' | 'status' | 'enrollmentDate'>; direction: 'asc' | 'desc' }>({ column: 'name', direction: 'asc' });
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const studentsPerPage = 10;
 
   const form = useForm<AddStudentFormValues>({
     resolver: zodResolver(addStudentFormSchema),
@@ -104,6 +107,11 @@ export default function StudentsPage() {
     },
   });
 
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, programFilter, statusFilter, sorting]);
+
+
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
@@ -113,6 +121,13 @@ export default function StudentsPage() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleSort = (column: keyof Pick<Student, 'name' | 'program' | 'status' | 'enrollmentDate'>) => {
+    setSorting(prevSorting => ({
+      column,
+      direction: prevSorting.column === column && prevSorting.direction === 'asc' ? 'desc' : 'asc'
+    }));
   };
 
   function onSubmit(data: AddStudentFormValues) {
@@ -147,8 +162,8 @@ export default function StudentsPage() {
     setIsModalOpen(false);
   }
 
-  const filteredStudents = React.useMemo(() => {
-    return students
+  const processedStudents = React.useMemo(() => {
+    let processed = students
       .filter(student =>
         student.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
@@ -158,7 +173,25 @@ export default function StudentsPage() {
       .filter(student =>
         statusFilter === "all" || student.status === statusFilter
       );
-  }, [students, searchQuery, programFilter, statusFilter]);
+
+    processed.sort((a, b) => {
+        const aValue = a[sorting.column];
+        const bValue = b[sorting.column];
+        if (aValue < bValue) return sorting.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sorting.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+    
+    return processed;
+  }, [students, searchQuery, programFilter, statusFilter, sorting]);
+
+  const totalPages = Math.ceil(processedStudents.length / studentsPerPage);
+
+  const paginatedStudents = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * studentsPerPage;
+    return processedStudents.slice(startIndex, startIndex + studentsPerPage);
+  }, [processedStudents, currentPage]);
+
 
   return (
     <div className="space-y-8">
@@ -393,64 +426,129 @@ export default function StudentsPage() {
                 </Select>
             </div>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden sm:table-cell">Program</TableHead>
-                <TableHead className="hidden md:table-cell">Status</TableHead>
-                <TableHead className="hidden lg:table-cell">Created At</TableHead>
-                <TableHead><span className="sr-only">Actions</span></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredStudents.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                        <Avatar>
-                            <AvatarImage src={student.avatar} alt={student.name} data-ai-hint={student.dataAiHint} />
-                            <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            {student.name}
-                            <div className="text-sm text-muted-foreground md:hidden">{student.program}</div>
-                        </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">{student.program}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Badge variant={statusVariant[student.status] || 'default'}>
-                      {student.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {format(new Date(student.enrollmentDate), "PPP")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
-                           <Link href={`/lpk/students/${student.id}`}>View Profile</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <div className="border rounded-md">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('name')} className="px-1">
+                      Name
+                      {sorting.column === 'name' ? (
+                          sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                      ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                     <Button variant="ghost" onClick={() => handleSort('program')} className="px-1">
+                      Program
+                      {sorting.column === 'program' ? (
+                          sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                      ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                     <Button variant="ghost" onClick={() => handleSort('status')} className="px-1">
+                      Status
+                       {sorting.column === 'status' ? (
+                          sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                      ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                     <Button variant="ghost" onClick={() => handleSort('enrollmentDate')} className="px-1">
+                      Enrolled
+                       {sorting.column === 'enrollmentDate' ? (
+                          sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                      ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead><span className="sr-only">Actions</span></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {paginatedStudents.length > 0 ? (
+                  paginatedStudents.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                            <Avatar>
+                                <AvatarImage src={student.avatar} alt={student.name} data-ai-hint={student.dataAiHint} />
+                                <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                {student.name}
+                                <div className="text-sm text-muted-foreground md:hidden">{student.program}</div>
+                            </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">{student.program}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant={statusVariant[student.status] || 'default'}>
+                          {student.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {format(new Date(student.enrollmentDate), "PPP")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/lpk/students/${student.id}`}>View Profile</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                      No students found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-6">
+                <div className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                    >
+                    Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages || totalPages === 0}
+                    >
+                    Next
+                    </Button>
+                </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 }
+
+    
