@@ -1,17 +1,76 @@
+
+"use client";
+
+import * as React from "react";
 import { financialProviders } from "@/lib/data";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AtSign, Globe } from "lucide-react";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-export default function ProviderDetailPage({ params }: { params: { id: string } }) {
-  const provider = financialProviders.find(p => p.id === params.id);
+
+const partnershipFormSchema = z.object({
+  message: z.string().min(20, {
+    message: "Your message must be at least 20 characters long.",
+  }),
+});
+
+type PartnershipFormValues = z.infer<typeof partnershipFormSchema>;
+
+export default function ProviderDetailPage() {
+  const params = useParams() as { id: string };
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
+  const provider = React.useMemo(
+    () => financialProviders.find((p) => p.id === params.id),
+    [params.id]
+  );
+  
+  const form = useForm<PartnershipFormValues>({
+    resolver: zodResolver(partnershipFormSchema),
+    defaultValues: {
+      message: `Dear ${provider?.name},\n\nWe are interested in partnering with you to provide financing for our students. Please let us know the next steps.\n\nBest regards,\nLPK Jaya Abadi`,
+    },
+  });
 
   if (!provider) {
     notFound();
+  }
+
+  function onSubmit(data: PartnershipFormValues) {
+    console.log(data);
+    toast({
+      title: "Application Submitted!",
+      description: `Your partnership request to ${provider?.name} has been sent.`,
+    });
+    setIsDialogOpen(false);
   }
 
   return (
@@ -68,9 +127,49 @@ export default function ProviderDetailPage({ params }: { params: { id: string } 
                     </div>
                 </CardContent>
             </Card>
-            <Button className="w-full">Apply for Partnership</Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="w-full">Apply for Partnership</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Apply for Partnership with {provider.name}</DialogTitle>
+                  <DialogDescription>
+                    Send a message to start the partnership process. They will contact you via email.
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                    <FormField
+                      control={form.control}
+                      name="message"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Message</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Explain why you'd like to partner with them..."
+                              className="min-h-[120px]"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            This message will be sent to their contact email.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <Button type="submit">Send Application</Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
         </div>
       </div>
     </div>
   );
 }
+
