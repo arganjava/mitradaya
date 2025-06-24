@@ -92,7 +92,7 @@ export default function StudentsPage() {
 
   const [sorting, setSorting] = React.useState<{ column: keyof Pick<Student, 'name' | 'program' | 'status' | 'enrollmentDate'>; direction: 'asc' | 'desc' }>({ column: 'name', direction: 'asc' });
   const [currentPage, setCurrentPage] = React.useState(1);
-  const studentsPerPage = 10;
+  const studentsPerPage = 5;
 
   const form = useForm<AddStudentFormValues>({
     resolver: zodResolver(addStudentFormSchema),
@@ -550,5 +550,3 @@ export default function StudentsPage() {
     </div>
   );
 }
-
-    
