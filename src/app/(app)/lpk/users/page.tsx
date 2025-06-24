@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search, ArrowUp, ArrowDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,7 +66,16 @@ const addUserFormSchema = z.object({
 
 type AddUserFormValues = z.infer<typeof addUserFormSchema>;
 
-const initialUsers = [
+type User = {
+    id: number;
+    name: string;
+    email: string;
+    role: "Admin" | "Staff";
+    avatar: string;
+    dataAiHint: string;
+};
+
+const initialUsers: User[] = [
   {
     id: 1,
     name: "Ahmad Prasetyo",
@@ -99,12 +108,34 @@ const initialUsers = [
     avatar: "https://placehold.co/100x100.png",
     dataAiHint: "female portrait"
   },
+   {
+    id: 5,
+    name: "Eko Nugroho",
+    email: "eko.n@lpkjaya.com",
+    role: "Staff",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "male portrait"
+  },
+  {
+    id: 6,
+    name: "Fitriani",
+    email: "fitriani@lpkjaya.com",
+    role: "Staff",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "female portrait"
+  },
 ];
 
 export default function UsersPage() {
   const [users, setUsers] = React.useState(initialUsers);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { toast } = useToast();
+
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [roleFilter, setRoleFilter] = React.useState("all");
+  const [sorting, setSorting] = React.useState<{ column: keyof Pick<User, 'name' | 'email' | 'role'>; direction: 'asc' | 'desc' }>({ column: 'name', direction: 'asc' });
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const usersPerPage = 5;
 
   const form = useForm<AddUserFormValues>({
     resolver: zodResolver(addUserFormSchema),
@@ -114,6 +145,17 @@ export default function UsersPage() {
       role: "Staff",
     },
   });
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, roleFilter, sorting]);
+
+  const handleSort = (column: keyof Pick<User, 'name' | 'email' | 'role'>) => {
+    setSorting(prevSorting => ({
+      column,
+      direction: prevSorting.column === column && prevSorting.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
 
   function onSubmit(data: AddUserFormValues) {
     const newUser = {
@@ -132,6 +174,35 @@ export default function UsersPage() {
     form.reset();
     setIsModalOpen(false);
   }
+
+  const processedUsers = React.useMemo(() => {
+     let processed = users
+      .filter(user =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .filter(user =>
+        roleFilter === "all" || user.role === roleFilter
+      );
+      
+      processed.sort((a, b) => {
+        const aValue = a[sorting.column];
+        const bValue = b[sorting.column];
+        if (aValue < bValue) return sorting.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sorting.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+    
+    return processed;
+  }, [users, searchQuery, roleFilter, sorting]);
+
+  const totalPages = Math.ceil(processedUsers.length / usersPerPage);
+
+  const paginatedUsers = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * usersPerPage;
+    return processedUsers.slice(startIndex, startIndex + usersPerPage);
+  }, [processedUsers, currentPage]);
+
 
   return (
     <div className="space-y-8">
@@ -218,56 +289,133 @@ export default function UsersPage() {
           <CardDescription>A list of all users in your LPK.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden md:table-cell">Email</TableHead>
-                <TableHead className="hidden md:table-cell">Role</TableHead>
-                <TableHead><span className="sr-only">Actions</span></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                   <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                        <Avatar>
-                            <AvatarImage src={user.avatar} alt={user.name} data-ai-hint={user.dataAiHint} />
-                            <AvatarFallback>{user.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                        </Avatar>
-                        <div className="min-w-0">
-                            {user.name}
-                            <div className="text-sm text-muted-foreground md:hidden break-all">{user.email}</div>
-                        </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{user.email}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
-                      {user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Change Role</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Delete User</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+            <div className="relative flex-1 w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or email..."
+                className="pl-10 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by role" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="Staff">Staff</SelectItem>
+                </SelectContent>
+            </Select>
+          </div>
+          <div className="border rounded-md">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('name')} className="px-1">
+                        Name
+                        {sorting.column === 'name' ? (
+                            sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                        ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    <Button variant="ghost" onClick={() => handleSort('email')} className="px-1">
+                        Email
+                        {sorting.column === 'email' ? (
+                            sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                        ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    <Button variant="ghost" onClick={() => handleSort('role')} className="px-1">
+                        Role
+                        {sorting.column === 'role' ? (
+                            sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                        ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead><span className="sr-only">Actions</span></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {paginatedUsers.length > 0 ? (
+                    paginatedUsers.map((user) => (
+                    <TableRow key={user.id}>
+                    <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                            <Avatar>
+                                <AvatarImage src={user.avatar} alt={user.name} data-ai-hint={user.dataAiHint} />
+                                <AvatarFallback>{user.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                                {user.name}
+                                <div className="text-sm text-muted-foreground md:hidden break-all">{user.email}</div>
+                            </div>
+                        </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{user.email}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                        <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
+                        {user.role}
+                        </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>Edit Profile</DropdownMenuItem>
+                            <DropdownMenuItem>Change Role</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive">Delete User</DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </TableCell>
+                    </TableRow>
+                ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={4} className="h-24 text-center">
+                            No users found.
+                        </TableCell>
+                    </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+           {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-6">
+                <div className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                    >
+                    Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages || totalPages === 0}
+                    >
+                    Next
+                    </Button>
+                </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
