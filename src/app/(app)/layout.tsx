@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutGrid, User, Settings, Landmark, Users, GraduationCap, BookOpen, Briefcase, LogOut } from "lucide-react";
+import { LayoutGrid, User, Settings, Landmark, GraduationCap, BookOpen, Briefcase, LogOut } from "lucide-react";
 import { usePathname } from 'next/navigation';
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
@@ -105,12 +105,6 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton href="/lpk/jobs" isActive={pathname.startsWith('/lpk/jobs')} tooltip="Jobs">
                   <Briefcase />
                   <span>Jobs</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/lpk/users" isActive={pathname.startsWith('/lpk/users')} tooltip="Users">
-                  <Users />
-                  <span>Users</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               </>
