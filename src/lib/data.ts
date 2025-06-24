@@ -271,3 +271,43 @@ export const jobs = [
     studentIds: ["std-004"],
   },
 ];
+
+
+export const proposals = [
+  {
+    id: "prop-001",
+    providerName: "DanaCepat Finance",
+    providerLogo: "https://placehold.co/100x100.png",
+    studentCount: 5,
+    amount: "Rp 50.000.000",
+    submittedDate: "2024-05-20",
+    status: "Approved",
+  },
+  {
+    id: "prop-002",
+    providerName: "Maju Bersama Capital",
+    providerLogo: "https://placehold.co/100x100.png",
+    studentCount: 3,
+    amount: "Rp 35.000.000",
+    submittedDate: "2024-05-22",
+    status: "Pending",
+  },
+  {
+    id: "prop-003",
+    providerName: "Amanah Syariah Funding",
+    providerLogo: "https://placehold.co/100x100.png",
+    studentCount: 8,
+    amount: "Rp 90.000.000",
+    submittedDate: "2024-05-18",
+    status: "Rejected",
+  },
+    {
+    id: "prop-004",
+    providerName: "Kredit Pintar Edukasi",
+    providerLogo: "https://placehold.co/100x100.png",
+    studentCount: 2,
+    amount: "Rp 15.000.000",
+    submittedDate: "2024-05-25",
+    status: "Pending",
+  },
+];

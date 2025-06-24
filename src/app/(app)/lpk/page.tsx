@@ -1,86 +1,200 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { financialProviders } from "@/lib/data";
+import { financialProviders, proposals } from "@/lib/data";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
+
+const statusVariant: {
+  [key: string]: "default" | "secondary" | "destructive" | "outline";
+} = {
+  Approved: "default",
+  Pending: "secondary",
+  Rejected: "destructive",
+};
 
 export default function LpkDashboardPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-4xl font-headline font-bold text-primary">Find Financial Providers</h1>
-        <p className="text-muted-foreground mt-2">Discover financing partners for your training programs.</p>
+        <h1 className="text-4xl font-headline font-bold text-primary">
+          Dashboard
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Manage your financing proposals and discover new partners.
+        </p>
       </header>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="relative lg:col-span-2">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input placeholder="Search by provider name or keyword..." className="pl-10" />
-            </div>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by financing type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="personal">Personal Loans</SelectItem>
-                <SelectItem value="micro">Micro Loans</SelectItem>
-                <SelectItem value="syariah">Syariah Compliant</SelectItem>
-                <SelectItem value="sme">SME Support</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="jakarta">Jakarta</SelectItem>
-                <SelectItem value="surabaya">Surabaya</SelectItem>
-                <SelectItem value="bandung">Bandung</SelectItem>
-                <SelectItem value="all">All Locations</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="proposals" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="proposals">My Proposals</TabsTrigger>
+          <TabsTrigger value="find-providers">Find Providers</TabsTrigger>
+        </TabsList>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {financialProviders.map((provider) => (
-          <Card key={provider.id} className="flex flex-col hover:shadow-lg transition-shadow">
-            <CardHeader className="flex-row items-center gap-4">
-              <Image
-                src={provider.logo}
-                alt={`${provider.name} logo`}
-                width={64}
-                height={64}
-                className="rounded-lg border"
-                data-ai-hint={provider.dataAiHint}
-              />
-              <div>
-                <CardTitle className="font-headline text-xl">{provider.name}</CardTitle>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {provider.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">{tag}</Badge>
-                  ))}
-                </div>
-              </div>
+        <TabsContent value="proposals" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Financing Proposals</CardTitle>
+              <CardDescription>
+                Track the status of all your submitted financing applications.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-muted-foreground text-sm">{provider.description}</p>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Provider</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead className="text-center">Students</TableHead>
+                    <TableHead>Submitted</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {proposals.map((proposal) => (
+                    <TableRow key={proposal.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src={proposal.providerLogo}
+                            alt={`${proposal.providerName} logo`}
+                            width={32}
+                            height={32}
+                            className="rounded-full border"
+                            data-ai-hint="finance logo"
+                          />
+                          <span>{proposal.providerName}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{proposal.amount}</TableCell>
+                      <TableCell className="text-center">
+                        {proposal.studentCount}
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(proposal.submittedDate), "PPP")}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={statusVariant[proposal.status] || "default"}>
+                          {proposal.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
-            <CardFooter>
-              <Link href={`/lpk/providers/${provider.id}`} className="w-full">
-                <Button className="w-full bg-primary hover:bg-primary/90">View Profile</Button>
-              </Link>
-            </CardFooter>
           </Card>
-        ))}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="find-providers" className="space-y-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="relative lg:col-span-2">
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by provider name or keyword..."
+                    className="pl-10"
+                  />
+                </div>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by financing type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="personal">Personal Loans</SelectItem>
+                    <SelectItem value="micro">Micro Loans</SelectItem>
+                    <SelectItem value="syariah">Syariah Compliant</SelectItem>
+                    <SelectItem value="sme">SME Support</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="jakarta">Jakarta</SelectItem>
+                    <SelectItem value="surabaya">Surabaya</SelectItem>
+                    <SelectItem value="bandung">Bandung</SelectItem>
+                    <SelectItem value="all">All Locations</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {financialProviders.map((provider) => (
+              <Card
+                key={provider.id}
+                className="flex flex-col-reverse transition-shadow hover:shadow-lg sm:flex-col"
+              >
+                <CardHeader className="flex-row items-center gap-4">
+                  <Image
+                    src={provider.logo}
+                    alt={`${provider.name} logo`}
+                    width={64}
+                    height={64}
+                    className="rounded-lg border"
+                    data-ai-hint={provider.dataAiHint}
+                  />
+                  <div>
+                    <CardTitle className="font-headline text-xl">
+                      {provider.name}
+                    </CardTitle>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {provider.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <p className="text-sm text-muted-foreground">
+                    {provider.description}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Link href={`/lpk/providers/${provider.id}`} className="w-full">
+                    <Button className="w-full bg-primary hover:bg-primary/90">
+                      View Profile
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
