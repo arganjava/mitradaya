@@ -8,10 +8,10 @@ import * as z from "zod";
 
 import { students as initialStudents, programs } from "@/lib/data";
 import { notFound } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AtSign, Calendar, GraduationCap, Percent, Phone, Pin, Cake, Users, PlusCircle, Camera } from "lucide-react";
+import { ArrowLeft, AtSign, Calendar, GraduationCap, Percent, Phone, Pin, Cake, Users, PlusCircle, Camera, FileText } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -36,6 +36,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 
 const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
@@ -233,6 +234,33 @@ export default function StudentDetailPage() {
                         </div>
                     </div>
                 </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                        <FileText className="w-6 h-6 text-primary" /> Student Documents
+                    </CardTitle>
+                    <CardDescription>
+                        Upload and manage student's KTP, KK, and Ijazah.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="ktp">KTP (Kartu Tanda Penduduk)</Label>
+                        <Input id="ktp" type="file" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="kk">KK (Kartu Keluarga)</Label>
+                        <Input id="kk" type="file" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="ijazah">Ijazah Sekolah Terakhir</Label>
+                        <Input id="ijazah" type="file" />
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button>Save Documents</Button>
+                </CardFooter>
             </Card>
         </div>
         <div className="space-y-6">
