@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 
 const financingApplicationSchema = z.object({
@@ -88,9 +88,9 @@ export default function ApplyFinancingPage() {
               render={() => (
                 <FormItem>
                   <div className="border rounded-md max-h-[300px] overflow-y-auto">
-                    <Table>
-                      <TableHeader className="sticky top-0 z-10">
-                        <TableRow className="border-b bg-card hover:bg-card">
+                    <table className="w-full text-sm relative">
+                      <TableHeader className="sticky top-0 z-10 bg-card border-b">
+                        <TableRow className="hover:bg-card">
                           <TableHead className="w-[50px]"></TableHead>
                           <TableHead>Student</TableHead>
                           <TableHead>Program</TableHead>
@@ -133,7 +133,7 @@ export default function ApplyFinancingPage() {
                           />
                         ))}
                       </TableBody>
-                    </Table>
+                    </table>
                   </div>
                    <FormMessage className="mt-2" />
                 </FormItem>
