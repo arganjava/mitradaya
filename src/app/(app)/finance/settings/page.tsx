@@ -16,7 +16,7 @@ export default function FinanceSettingsPage() {
     <div className="space-y-8">
       <header>
         <h1 className="text-4xl font-headline font-bold text-primary">
-          Settings
+          Personalize
         </h1>
         <p className="mt-2 text-muted-foreground">
           Manage your account and preferences.

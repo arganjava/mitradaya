@@ -92,9 +92,9 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
             )}
 
             <SidebarMenuItem>
-              <SidebarMenuButton href={isLpk ? "/lpk/settings" : "/finance/settings"} isActive={pathname.includes('/settings')} tooltip="Settings">
+              <SidebarMenuButton href={isLpk ? "/lpk/settings" : "/finance/settings"} isActive={pathname.includes('/settings')} tooltip="Personalize">
                 <Settings />
-                <span>Settings</span>
+                <span>Personalize</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

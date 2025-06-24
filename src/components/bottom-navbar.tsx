@@ -39,13 +39,13 @@ export function BottomNavbar() {
     { href: "/lpk/programs", icon: BookOpen, label: "Programs" },
     { href: "/lpk/jobs", icon: Briefcase, label: "Jobs" },
     { href: "/lpk/users", icon: Users, label: "Users" },
-    { href: "/lpk/settings", icon: Settings, label: "Settings" },
+    { href: "/lpk/settings", icon: Settings, label: "Personalize" },
   ];
 
   const financeNavItems: NavItem[] = [
     { href: "/finance", icon: LayoutGrid, label: "Dashboard" },
     { href: "/finance/profile", icon: User, label: "Profile" },
-    { href: "/finance/settings", icon: Settings, label: "Settings" },
+    { href: "/finance/settings", icon: Settings, label: "Personalize" },
   ];
     
   const navItems = isLpk ? lpkNavItems : financeNavItems;

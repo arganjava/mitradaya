@@ -19,7 +19,7 @@ export default function LpkSettingsPage() {
     <div className="space-y-8">
       <header>
         <h1 className="text-4xl font-headline font-bold text-primary">
-          Settings
+          Personalize
         </h1>
         <p className="mt-2 text-muted-foreground">
           Manage your LPK profile, account, and preferences.
@@ -32,6 +32,7 @@ export default function LpkSettingsPage() {
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="bank-account">Bank Account</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="appearance">Appearance</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -221,6 +222,22 @@ export default function LpkSettingsPage() {
              <CardFooter className="border-t px-6 py-4">
               <Button>Update Password</Button>
             </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appearance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appearance</CardTitle>
+              <CardDescription>
+                Customize the look and feel of the application.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Appearance settings will be available in a future update.
+              </p>
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
