@@ -36,6 +36,7 @@ function MobileBottomNav({ isLpk }: { isLpk: boolean }) {
     { href: "/lpk/students", label: "Students", icon: <GraduationCap /> },
     { href: "/lpk/programs", label: "Programs", icon: <BookOpen /> },
     { href: "/lpk/jobs", label: "Jobs", icon: <Briefcase /> },
+    { href: "/lpk/users", label: "Users", icon: <Users /> },
     { href: "/lpk/settings", label: "Personalize", icon: <Settings /> },
   ] : [
     { href: "/finance", label: "Dashboard", icon: <LayoutGrid /> },
@@ -45,7 +46,7 @@ function MobileBottomNav({ isLpk }: { isLpk: boolean }) {
 
   return (
     <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border md:hidden">
-      <div className="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
+      <div className={cn("grid h-full max-w-lg mx-auto font-medium", isLpk ? "grid-cols-6" : "grid-cols-3")}>
         {menuItems.map((item) => (
            <Link
             key={item.href}
