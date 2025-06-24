@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Link from 'next/link';
+import { LogOut } from 'lucide-react';
 
 export default function FinanceSettingsPage() {
   return (
@@ -53,8 +55,14 @@ export default function FinanceSettingsPage() {
                 <Input id="passwordConfirm" type="password" />
               </div>
             </CardContent>
-            <CardFooter className="border-t px-6 py-4">
+            <CardFooter className="border-t px-6 py-4 flex justify-between items-center">
               <Button>Update Password</Button>
+              <Button variant="destructive" asChild>
+                <Link href="/">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log Out
+                </Link>
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>

@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
+import Link from 'next/link';
+import { LogOut } from 'lucide-react';
 
 export default function LpkSettingsPage() {
   return (
@@ -219,8 +221,14 @@ export default function LpkSettingsPage() {
                 <Input id="passwordConfirm" type="password" />
               </div>
             </CardContent>
-             <CardFooter className="border-t px-6 py-4">
+             <CardFooter className="border-t px-6 py-4 flex justify-between items-center">
               <Button>Update Password</Button>
+               <Button variant="destructive" asChild>
+                <Link href="/">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log Out
+                </Link>
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>

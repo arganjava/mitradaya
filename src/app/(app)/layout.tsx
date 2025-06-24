@@ -14,12 +14,21 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutGrid, User, Settings, School, Landmark, Users, GraduationCap, BookOpen, Briefcase } from "lucide-react";
+import { LayoutGrid, User, Settings, School, Landmark, Users, GraduationCap, BookOpen, Briefcase, LogOut } from "lucide-react";
 import { usePathname } from 'next/navigation';
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNavbar } from "@/components/bottom-navbar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Link from 'next/link';
 
 // This new component is a child of SidebarProvider, so it can use the useSidebar hook.
 function AppLayoutClient({ children }: { children: React.ReactNode }) {
@@ -102,16 +111,36 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
         </SidebarContent>
         <SidebarFooter>
           <Separator className="mb-2" />
-          <div className="flex items-center gap-3 p-2">
-            <Avatar>
-              <AvatarImage src="https://placehold.co/100x100.png" alt="User" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <div className={`transition-opacity duration-200 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
-              <p className="font-semibold text-sm">User Name</p>
-              <p className="text-xs text-sidebar-foreground/70">user@example.com</p>
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex w-full items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors text-left outline-none ring-sidebar-ring focus-visible:ring-2">
+                <Avatar>
+                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" />
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+                <div className={`transition-opacity duration-200 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
+                  <p className="font-semibold text-sm">User Name</p>
+                  <p className="text-xs text-sidebar-foreground/70">user@example.com</p>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="top" align="start" className="w-[calc(var(--sidebar-width)_-_1rem)] mb-2 ml-2 bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-sidebar-border" />
+               <DropdownMenuItem asChild>
+                <Link href={isLpk ? "/lpk/settings" : "/finance/settings"} className="cursor-pointer w-full flex items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Personalize</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive focus:text-destructive" asChild>
+                <Link href="/" className="cursor-pointer w-full flex items-center">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
