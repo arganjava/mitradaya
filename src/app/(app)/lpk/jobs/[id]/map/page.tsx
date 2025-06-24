@@ -5,14 +5,13 @@ import * as React from "react";
 import { useParams, useRouter, notFound } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import { jobs as initialJobs, students, programs } from "@/lib/data";
+import { jobs as initialJobs, students, programs, type Student } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Search } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ArrowLeft, Search, ArrowUp, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -39,25 +38,61 @@ export default function MapStudentsToJobPage() {
 
   const [searchQuery, setSearchQuery] = React.useState("");
   const [programFilter, setProgramFilter] = React.useState("all");
+  const [sorting, setSorting] = React.useState<{ column: keyof Pick<Student, 'name' | 'program'>; direction: 'asc' | 'desc' }>({ column: 'name', direction: 'asc' });
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const studentsPerPage = 5;
 
-  // Find the job from our mock data
   const job = React.useMemo(() => initialJobs.find(j => j.id === params.id), [params.id]);
-
   const [mappedStudentIds, setMappedStudentIds] = React.useState<string[]>(job?.studentIds || []);
+  
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, programFilter, sorting]);
 
-  const filteredStudents = React.useMemo(() => {
-    return students
+  if (!job) {
+    notFound();
+  }
+  
+  const handleSort = (column: keyof Pick<Student, 'name' | 'program'>) => {
+    setSorting(prevSorting => ({
+      column,
+      direction: prevSorting.column === column && prevSorting.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const processedStudents = React.useMemo(() => {
+    let processed = students
       .filter(student =>
         student.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
       .filter(student =>
         programFilter === "all" || student.program === programFilter
       );
-  }, [searchQuery, programFilter]);
 
-  if (!job) {
-    notFound();
-  }
+    processed.sort((a, b) => {
+      const aValue = a[sorting.column];
+      const bValue = b[sorting.column];
+      
+      if (aValue < bValue) {
+        return sorting.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sorting.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return processed;
+  }, [searchQuery, programFilter, sorting]);
+
+  const totalPages = Math.ceil(processedStudents.length / studentsPerPage);
+  
+  const paginatedStudents = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * studentsPerPage;
+    const endIndex = startIndex + studentsPerPage;
+    return processedStudents.slice(startIndex, endIndex);
+  }, [processedStudents, currentPage]);
+
 
   const handleSaveMapping = () => {
     updateJobInMockDB(job.id, mappedStudentIds);
@@ -86,7 +121,7 @@ export default function MapStudentsToJobPage() {
       <Card>
         <CardHeader>
             <CardTitle>Select Students</CardTitle>
-            <CardDescription>Filter and check the box next to each student you want to map to this job.</CardDescription>
+            <CardDescription>Filter, sort, and check the box next to each student you want to map to this job.</CardDescription>
         </CardHeader>
         <CardContent>
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
@@ -111,18 +146,32 @@ export default function MapStudentsToJobPage() {
                     </SelectContent>
                 </Select>
             </div>
-            <ScrollArea className="h-[45vh] border rounded-md">
+            <div className="border rounded-md">
                 <Table>
                     <TableHeader>
                         <TableRow>
                         <TableHead className="w-[50px]"></TableHead>
-                        <TableHead>Student</TableHead>
-                        <TableHead>Program</TableHead>
+                        <TableHead>
+                           <Button variant="ghost" onClick={() => handleSort('name')} className="px-0 hover:bg-transparent">
+                                Student
+                                {sorting.column === 'name' ? (
+                                    sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                                ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                            </Button>
+                        </TableHead>
+                        <TableHead>
+                             <Button variant="ghost" onClick={() => handleSort('program')} className="px-0 hover:bg-transparent">
+                                Program
+                                {sorting.column === 'program' ? (
+                                    sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                                ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                            </Button>
+                        </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredStudents.length > 0 ? (
-                            filteredStudents.map((student) => (
+                        {paginatedStudents.length > 0 ? (
+                            paginatedStudents.map((student) => (
                             <TableRow key={student.id}>
                                 <TableCell>
                                 <Checkbox
@@ -158,7 +207,34 @@ export default function MapStudentsToJobPage() {
                         )}
                     </TableBody>
                 </Table>
-            </ScrollArea>
+            </div>
+            
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-6">
+                    <div className="text-sm text-muted-foreground">
+                        Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                        >
+                        Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages || totalPages === 0}
+                        >
+                        Next
+                        </Button>
+                    </div>
+                </div>
+            )}
+            
             <div className="flex justify-end gap-2 mt-6">
                 <Button variant="outline" onClick={() => router.push('/lpk/jobs')}>Cancel</Button>
                 <Button onClick={handleSaveMapping}>Save Mapping</Button>

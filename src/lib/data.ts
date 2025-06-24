@@ -1,4 +1,5 @@
 
+
 export const financialProviders = [
   {
     id: "danacepat-finance",
@@ -177,7 +178,57 @@ export const students = [
       "Scikit-learn": "Not Started"
     }
   },
+  {
+    id: "std-005",
+    name: "Gede Agus",
+    email: "gede.agus@example.com",
+    program: "Digital Marketing Bootcamp",
+    status: "Active",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "student portrait",
+    enrollmentDate: "2023-03-10",
+    dateOfBirth: "2001-09-15",
+    previousEducation: "SMA Negeri 1 Denpasar",
+    parentName: "I Wayan Suardika",
+    progress: 60,
+    contact: {
+      phone: "081234567894",
+      address: "Jl. Bypass Ngurah Rai, Denpasar"
+    },
+    grades: {
+      "Introduction": "A",
+      "SEO": "A",
+      "SEM": "B",
+      "Social Media": "In Progress"
+    }
+  },
+  {
+    id: "std-006",
+    name: "Hesti Puspita",
+    email: "hesti.puspita@example.com",
+    program: "Full-Stack Web Development",
+    status: "Active",
+    avatar: "https://placehold.co/100x100.png",
+    dataAiHint: "student portrait",
+    enrollmentDate: "2023-04-01",
+    dateOfBirth: "2000-12-30",
+    previousEducation: "SMA Muhammadiyah Yogyakarta",
+    parentName: "Siti Nurhaliza",
+    progress: 80,
+    contact: {
+      phone: "081234567895",
+      address: "Jl. Malioboro, Yogyakarta"
+    },
+    grades: {
+      "HTML/CSS": "A",
+      "JavaScript": "A",
+      "React": "B+",
+      "Node.js": "A-"
+    }
+  }
 ];
+
+export type Student = typeof students[0];
 
 export const programs = [
   { id: 'prog-01', name: 'Digital Marketing Bootcamp', duration: '3 Months' },
