@@ -12,14 +12,13 @@ import {
   SidebarFooter,
   SidebarInset,
   useSidebar,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutGrid, User, Settings, School, Landmark, Users, GraduationCap, BookOpen, Briefcase, LogOut } from "lucide-react";
+import { LayoutGrid, User, Settings, Landmark, Users, GraduationCap, BookOpen, Briefcase, LogOut } from "lucide-react";
 import { usePathname } from 'next/navigation';
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { BottomNavbar } from "@/components/bottom-navbar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,26 +33,14 @@ import Link from 'next/link';
 function AppLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLpk = pathname.startsWith('/lpk');
-  const { state: sidebarState } = useSidebar();
+  const { state: sidebarState, isMobile } = useSidebar();
   const isCollapsed = sidebarState === 'collapsed';
-  const isMobile = useIsMobile();
-
-  if (isMobile) {
-    return (
-      <>
-        <div className="p-4 sm:p-6 pb-20 bg-background min-h-screen">
-          {children}
-        </div>
-        <BottomNavbar />
-      </>
-    );
-  }
 
   return (
     <>
       <Sidebar>
         <SidebarHeader>
-          <Logo isCollapsed={isCollapsed} />
+          <Logo isCollapsed={isMobile ? false : isCollapsed} />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
@@ -118,7 +105,7 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
                   <AvatarImage src="https://placehold.co/100x100.png" alt="User" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
-                <div className={`transition-opacity duration-200 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
+                <div className={`transition-opacity duration-200 ${isCollapsed && !isMobile ? 'opacity-0' : 'opacity-100'}`}>
                   <p className="font-semibold text-sm">User Name</p>
                   <p className="text-xs text-sidebar-foreground/70">user@example.com</p>
                 </div>
@@ -144,6 +131,10 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
+         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
+          <SidebarTrigger />
+          <Logo />
+        </header>
         <div className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen">
           {children}
         </div>
