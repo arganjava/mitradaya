@@ -235,27 +235,56 @@ export default function StudentDetailPage() {
                     </div>
                 </CardContent>
             </Card>
-             <Card>
+            <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl flex items-center gap-2">
                         <FileText className="w-6 h-6 text-primary" /> Student Documents
                     </CardTitle>
                     <CardDescription>
-                        Upload and manage student's KTP, KK, and Ijazah.
+                        Manage student's identity card (KTP), family card (KK), and last diploma (Ijazah).
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="ktp">KTP (Kartu Tanda Penduduk)</Label>
-                        <Input id="ktp" type="file" />
+                 <CardContent className="space-y-6">
+                     <div className="space-y-4 p-4 border rounded-lg">
+                        <h4 className="font-medium text-base">KTP (Kartu Tanda Penduduk)</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="ktpNumber">Nomor KTP</Label>
+                                <Input id="ktpNumber" placeholder="e.g., 3171234567890001" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="ktpFile">Upload File KTP</Label>
+                                <Input id="ktpFile" type="file" />
+                            </div>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="kk">KK (Kartu Keluarga)</Label>
-                        <Input id="kk" type="file" />
+                    
+                     <div className="space-y-4 p-4 border rounded-lg">
+                        <h4 className="font-medium text-base">KK (Kartu Keluarga)</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="kkNumber">Nomor KK</Label>
+                                <Input id="kkNumber" placeholder="e.g., 3171234567890002" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="kkFile">Upload File KK</Label>
+                                <Input id="kkFile" type="file" />
+                            </div>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="ijazah">Ijazah Sekolah Terakhir</Label>
-                        <Input id="ijazah" type="file" />
+
+                    <div className="space-y-4 p-4 border rounded-lg">
+                        <h4 className="font-medium text-base">Ijazah Terakhir</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="schoolName">Nama Sekolah</Label>
+                                <Input id="schoolName" placeholder="e.g., SMA Negeri 1 Jakarta" defaultValue={student.previousEducation} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="ijazahFile">Upload File Ijazah</Label>
+                                <Input id="ijazahFile" type="file" />
+                            </div>
+                        </div>
                     </div>
                 </CardContent>
                 <CardFooter>
@@ -317,3 +346,5 @@ export default function StudentDetailPage() {
     </div>
   );
 }
+
+    
