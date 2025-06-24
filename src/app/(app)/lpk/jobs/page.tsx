@@ -11,7 +11,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter
 } from "@/components/ui/card";
 import {
   Table,
@@ -383,9 +382,10 @@ export default function JobsPage() {
                 </DropdownMenu>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-               <Separator />
-                <div className="flex justify-between items-center text-sm pt-3">
+            <CardContent>
+              <Separator className="-mx-6 mb-4 w-auto" />
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">Placement Cost</span>
                     <span className="font-medium">{job.cost}</span>
                 </div>
@@ -400,6 +400,7 @@ export default function JobsPage() {
                         <span>{job.studentIds.length}</span>
                     </div>
                 </div>
+              </div>
             </CardContent>
           </Card>
         ))}
