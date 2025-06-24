@@ -31,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
+import { Separator } from "@/components/ui/separator";
 
 const statusVariant: {
   [key: string]: "default" | "secondary" | "destructive" | "outline";
@@ -59,7 +60,8 @@ export default function LpkDashboardPage() {
         </TabsList>
 
         <TabsContent value="proposals" className="space-y-4">
-          <Card>
+          {/* Desktop Table View */}
+          <Card className="hidden md:block">
             <CardHeader>
               <CardTitle>Financing Proposals</CardTitle>
               <CardDescription>
@@ -101,7 +103,9 @@ export default function LpkDashboardPage() {
                         {format(new Date(proposal.submittedDate), "PPP")}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={statusVariant[proposal.status] || "default"}>
+                        <Badge
+                          variant={statusVariant[proposal.status] || "default"}
+                        >
                           {proposal.status}
                         </Badge>
                       </TableCell>
@@ -111,6 +115,62 @@ export default function LpkDashboardPage() {
               </Table>
             </CardContent>
           </Card>
+
+          {/* Mobile Card View */}
+          <div className="space-y-4 md:hidden">
+            <CardHeader className="p-0">
+              <CardTitle>Financing Proposals</CardTitle>
+              <CardDescription>
+                Track the status of all your submitted financing applications.
+              </CardDescription>
+            </CardHeader>
+            {proposals.map((proposal) => (
+              <Card key={proposal.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={proposal.providerLogo}
+                        alt={`${proposal.providerName} logo`}
+                        width={40}
+                        height={40}
+                        className="rounded-full border"
+                        data-ai-hint="finance logo"
+                      />
+                      <div>
+                        <CardTitle className="text-lg leading-snug">
+                          {proposal.providerName}
+                        </CardTitle>
+                        <CardDescription>
+                          {format(new Date(proposal.submittedDate), "PPP")}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={statusVariant[proposal.status] || "default"}
+                    >
+                      {proposal.status}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Separator className="-mx-6 mb-4 w-auto" />
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Amount</span>
+                      <span className="font-medium">{proposal.amount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Students</span>
+                      <span className="font-medium">
+                        {proposal.studentCount}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
         <TabsContent value="find-providers" className="space-y-4">
@@ -184,7 +244,10 @@ export default function LpkDashboardPage() {
                   </p>
                 </CardContent>
                 <CardFooter>
-                  <Link href={`/lpk/providers/${provider.id}`} className="w-full">
+                  <Link
+                    href={`/lpk/providers/${provider.id}`}
+                    className="w-full"
+                  >
                     <Button className="w-full bg-primary hover:bg-primary/90">
                       View Profile
                     </Button>
