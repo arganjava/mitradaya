@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, GraduationCap, BookOpen, Users, Settings, User, Briefcase } from 'lucide-react';
+import { LayoutGrid, GraduationCap, BookOpen, Users, Settings, User, Briefcase, Landmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 
@@ -34,7 +34,7 @@ export function BottomNavbar() {
   const isLpk = pathname.startsWith('/lpk');
 
   const lpkNavItems: NavItem[] = [
-    { href: "/lpk", icon: LayoutGrid, label: "Providers" },
+    { href: "/lpk", icon: Landmark, label: "Finance" },
     { href: "/lpk/students", icon: GraduationCap, label: "Students" },
     { href: "/lpk/programs", icon: BookOpen, label: "Programs" },
     { href: "/lpk/jobs", icon: Briefcase, label: "Jobs" },

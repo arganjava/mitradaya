@@ -49,9 +49,9 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href={isLpk ? "/lpk" : "/finance"} isActive={pathname === (isLpk ? '/lpk' : '/finance')} tooltip={isLpk ? "Find Providers" : "Dashboard"}>
-                <LayoutGrid />
-                <span>{isLpk ? "Find Providers" : "Dashboard"}</span>
+              <SidebarMenuButton href={isLpk ? "/lpk" : "/finance"} isActive={pathname === (isLpk ? '/lpk' : '/finance')} tooltip={isLpk ? "Finance" : "Dashboard"}>
+                {isLpk ? <Landmark /> : <LayoutGrid />}
+                <span>{isLpk ? "Finance" : "Dashboard"}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             
