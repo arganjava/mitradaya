@@ -10,14 +10,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const GenerateVAInputSchema = z.object({
+const GenerateVAInputSchema = z.object({
   studentName: z.string().describe("The full name of the student."),
   loanId: z.string().describe("The unique ID of the loan."),
   bank: z.string().describe("The destination bank, e.g., BCA, Mandiri."),
 });
 export type GenerateVAInput = z.infer<typeof GenerateVAInputSchema>;
 
-export const GenerateVAOutputSchema = z.object({
+const GenerateVAOutputSchema = z.object({
   virtualAccountNumber: z.string().describe("The generated virtual account number."),
 });
 export type GenerateVAOutput = z.infer<typeof GenerateVAOutputSchema>;
