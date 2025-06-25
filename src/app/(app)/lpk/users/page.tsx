@@ -58,13 +58,13 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const addUserFormSchema = z.object({
+const userFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
   role: z.enum(["Admin", "Staff"], { required_error: "Role is required." }),
 });
 
-type AddUserFormValues = z.infer<typeof addUserFormSchema>;
+type UserFormValues = z.infer<typeof userFormSchema>;
 
 type User = {
     id: number;
@@ -128,7 +128,8 @@ const initialUsers: User[] = [
 
 export default function UsersPage() {
   const [users, setUsers] = React.useState(initialUsers);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
+  const [editingUser, setEditingUser] = React.useState<User | null>(null);
   const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -137,14 +138,25 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const usersPerPage = 5;
 
-  const form = useForm<AddUserFormValues>({
-    resolver: zodResolver(addUserFormSchema),
+  const addForm = useForm<UserFormValues>({
+    resolver: zodResolver(userFormSchema),
     defaultValues: {
       name: "",
       email: "",
       role: "Staff",
     },
   });
+
+  const editForm = useForm<UserFormValues>({
+    resolver: zodResolver(userFormSchema),
+  });
+  
+  React.useEffect(() => {
+    if (editingUser) {
+        editForm.reset(editingUser);
+    }
+  }, [editingUser, editForm]);
+
 
   React.useEffect(() => {
     setCurrentPage(1);
@@ -157,7 +169,7 @@ export default function UsersPage() {
     }));
   };
 
-  function onSubmit(data: AddUserFormValues) {
+  function onAddUserSubmit(data: UserFormValues) {
     const newUser = {
       id: users.length + 1,
       ...data,
@@ -171,8 +183,18 @@ export default function UsersPage() {
       description: `${data.name} has been successfully added.`,
     });
 
-    form.reset();
-    setIsModalOpen(false);
+    addForm.reset();
+    setIsAddModalOpen(false);
+  }
+
+  function onEditUserSubmit(data: UserFormValues) {
+    if (!editingUser) return;
+    setUsers(users.map(u => u.id === editingUser.id ? { ...editingUser, ...data } : u));
+    toast({
+        title: "User Updated",
+        description: `Profile for ${data.name} has been updated.`,
+    });
+    setEditingUser(null);
   }
 
   const processedUsers = React.useMemo(() => {
@@ -211,7 +233,7 @@ export default function UsersPage() {
           <h1 className="text-4xl font-headline font-bold text-primary">Users</h1>
           <p className="text-muted-foreground mt-2">Manage admin and staff users for your LPK.</p>
         </div>
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -225,10 +247,10 @@ export default function UsersPage() {
                 Fill in the details below to add a new user to your LPK.
               </DialogDescription>
             </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <Form {...addForm}>
+              <form onSubmit={addForm.handleSubmit(onAddUserSubmit)} className="space-y-4 py-4">
                 <FormField
-                  control={form.control}
+                  control={addForm.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
@@ -241,7 +263,7 @@ export default function UsersPage() {
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={addForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -254,7 +276,7 @@ export default function UsersPage() {
                   )}
                 />
                 <FormField
-                  control={form.control}
+                  control={addForm.control}
                   name="role"
                   render={({ field }) => (
                     <FormItem>
@@ -282,6 +304,72 @@ export default function UsersPage() {
           </DialogContent>
         </Dialog>
       </header>
+
+      {/* Edit User Modal */}
+      <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+                <DialogTitle>Edit User</DialogTitle>
+                <DialogDescription>
+                    Update the details for {editingUser?.name}.
+                </DialogDescription>
+            </DialogHeader>
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(onEditUserSubmit)} className="space-y-4 py-4">
+                <FormField
+                  control={editForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="e.g., user@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Admin">Admin</SelectItem>
+                          <SelectItem value="Staff">Staff</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button type="submit">Save Changes</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+        </DialogContent>
+      </Dialog>
 
       <Card>
         <CardHeader>
@@ -373,7 +461,7 @@ export default function UsersPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>Edit Profile</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setEditingUser(user)}>Edit Profile</DropdownMenuItem>
                             <DropdownMenuItem>Change Role</DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive">Delete User</DropdownMenuItem>
                         </DropdownMenuContent>
