@@ -8,13 +8,16 @@ import { proposals, students, type Student } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, DollarSign, PiggyBank, Receipt, Hash } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, PiggyBank, Receipt, Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { format, addMonths } from 'date-fns';
 import type { Loan } from "../page";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { generateFinancialDetails } from "@/ai/flows/generate-financial-details-flow";
 
 const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
   Active: "default",
@@ -42,10 +45,11 @@ export default function FinanceLoanDetailPage() {
   const params = useParams() as { id: string };
   const router = useRouter();
   const { toast } = useToast();
+  const [isGeneratingModalOpen, setIsGeneratingModalOpen] = React.useState(false);
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [selectedBank, setSelectedBank] = React.useState("Mandiri");
   
-  // Re-generate the full loans list to find the one matching the ID
-  // This is a workaround for prototype state management
-  const loan = React.useMemo(() => {
+  const [loan, setLoan] = React.useState<Loan | null | undefined>(() => {
     const allLoans = proposals
         .filter(p => p.status === 'Approved')
         .flatMap(loan => 
@@ -70,7 +74,50 @@ export default function FinanceLoanDetailPage() {
             })
         );
     return allLoans.find(l => l.id === params.id);
-  }, [params.id]);
+  });
+  
+  const handleGenerateDetails = async () => {
+    if (!loan || !loan.student) return;
+    setIsGenerating(true);
+
+    try {
+        const result = await generateFinancialDetails({
+            loanId: loan.id,
+            studentName: loan.student.name,
+            lpkName: loan.lpkName,
+            totalAmount: loan.amount,
+            bank: selectedBank,
+        });
+        
+        setLoan(prevLoan => {
+            if (!prevLoan) return null;
+            return {
+                ...prevLoan,
+                principal: result.principal,
+                margin: result.margin,
+                virtualAccountNumber: result.virtualAccountNumber,
+                bank: selectedBank,
+            }
+        });
+
+        toast({
+            title: "Details Generated",
+            description: `New financial details and VA have been generated for ${loan.student.name}.`
+        });
+
+    } catch (error) {
+        console.error("Error generating financial details:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Generation Failed',
+            description: 'Could not generate financial details.'
+        });
+    } finally {
+        setIsGenerating(false);
+        setIsGeneratingModalOpen(false);
+    }
+  };
+
 
   const paymentHistory = React.useMemo(() => {
     if (!loan) return [];
@@ -119,8 +166,47 @@ export default function FinanceLoanDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-2xl">Financial Overview</CardTitle>
-               <CardDescription>A summary of the loan amounts and terms.</CardDescription>
+               <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="font-headline text-2xl">Financial Overview</CardTitle>
+                  <CardDescription>A summary of the loan amounts and terms.</CardDescription>
+                </div>
+                <Dialog open={isGeneratingModalOpen} onOpenChange={setIsGeneratingModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">Generate Details</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Generate Financial Details & VA</DialogTitle>
+                      <DialogDescription>
+                        Select a bank to generate a new virtual account and recalculate principal/margin.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <label htmlFor="bank-select" className="text-sm font-medium">Bank</label>
+                        <Select value={selectedBank} onValueChange={setSelectedBank}>
+                          <SelectTrigger id="bank-select">
+                            <SelectValue placeholder="Select a bank" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="BCA">BCA</SelectItem>
+                            <SelectItem value="BNI">BNI</SelectItem>
+                            <SelectItem value="Mandiri">Mandiri</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="ghost" onClick={() => setIsGeneratingModalOpen(false)}>Cancel</Button>
+                      <Button onClick={handleGenerateDetails} disabled={isGenerating}>
+                        {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Generate
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
