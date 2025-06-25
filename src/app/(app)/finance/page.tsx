@@ -29,6 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { format } from "date-fns";
 import { proposals } from "@/lib/data";
+import Link from 'next/link';
 
 const statusVariant: {
   [key: string]: "default" | "secondary" | "destructive" | "outline";
@@ -144,15 +145,14 @@ export default function FinanceDashboardPage() {
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-3">
                           <Image
-                            src={proposal.providerLogo}
-                            alt={`${proposal.providerName} logo`}
+                            src={proposal.lpkLogo}
+                            alt={`${proposal.lpkName} logo`}
                             width={32}
                             height={32}
                             className="rounded-full border"
                             data-ai-hint="training logo"
                           />
-                          {/* We assume providerName is the LPK name here */}
-                          <span>{proposal.providerName}</span>
+                          <span>{proposal.lpkName}</span>
                         </div>
                       </TableCell>
                       <TableCell>{proposal.amount}</TableCell>
@@ -179,7 +179,9 @@ export default function FinanceDashboardPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>View Proposal</DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href={`/finance/proposals/${proposal.id}`}>View Proposal</Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem>Approve</DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive">
                               Reject
@@ -208,8 +210,8 @@ export default function FinanceDashboardPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={proposal.providerLogo}
-                        alt={`${proposal.providerName} logo`}
+                        src={proposal.lpkLogo}
+                        alt={`${proposal.lpkName} logo`}
                         width={40}
                         height={40}
                         className="rounded-full border"
@@ -217,8 +219,7 @@ export default function FinanceDashboardPage() {
                       />
                       <div>
                         <CardTitle className="text-lg leading-snug">
-                           {/* We assume providerName is the LPK name here */}
-                          {proposal.providerName}
+                          {proposal.lpkName}
                         </CardTitle>
                         <CardDescription>
                           {format(new Date(proposal.submittedDate), "PPP")}
@@ -249,9 +250,9 @@ export default function FinanceDashboardPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-end gap-2">
-                  <Button variant="outline" size="sm">
-                    Details
-                  </Button>
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href={`/finance/proposals/${proposal.id}`}>Details</Link>
+                    </Button>
                   {proposal.status === "Pending" && (
                     <Button size="sm">Review</Button>
                   )}

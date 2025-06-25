@@ -85,14 +85,14 @@ export default function LpkDashboardPage() {
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-3">
                           <Image
-                            src={proposal.providerLogo}
-                            alt={`${proposal.providerName} logo`}
+                            src={"https://placehold.co/100x100.png"}
+                            alt={`${proposal.financeProviderName} logo`}
                             width={32}
                             height={32}
                             className="rounded-full border"
                             data-ai-hint="finance logo"
                           />
-                          <span>{proposal.providerName}</span>
+                          <span>{proposal.financeProviderName}</span>
                         </div>
                       </TableCell>
                       <TableCell>{proposal.amount}</TableCell>
@@ -130,8 +130,8 @@ export default function LpkDashboardPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={proposal.providerLogo}
-                        alt={`${proposal.providerName} logo`}
+                        src={"https://placehold.co/100x100.png"}
+                        alt={`${proposal.financeProviderName} logo`}
                         width={40}
                         height={40}
                         className="rounded-full border"
@@ -139,7 +139,7 @@ export default function LpkDashboardPage() {
                       />
                       <div>
                         <CardTitle className="text-lg leading-snug">
-                          {proposal.providerName}
+                          {proposal.financeProviderName}
                         </CardTitle>
                         <CardDescription>
                           {format(new Date(proposal.submittedDate), "PPP")}
