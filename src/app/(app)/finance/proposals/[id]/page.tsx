@@ -4,15 +4,23 @@
 import * as React from "react";
 import { useParams, notFound, useRouter } from "next/navigation";
 import Link from "next/link";
-import { proposals, students } from "@/lib/data";
+import { proposals, students, type Student } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Calendar, Users as StudentsIcon, DollarSign } from "lucide-react";
+import { ArrowLeft, User, Calendar, Users as StudentsIcon, DollarSign, AtSign, Phone, Pin, Cake, GraduationCap } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
   "Approved": "default",
@@ -20,10 +28,104 @@ const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | 
   "Rejected": "destructive"
 };
 
+function StudentDetailModal({ student, open, onOpenChange }: { student: Student | null; open: boolean; onOpenChange: (open: boolean) => void }) {
+  if (!student) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16">
+              <AvatarImage src={student.avatar} alt={student.name} data-ai-hint={student.dataAiHint} />
+              <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+            </Avatar>
+            <div>
+              <DialogTitle className="text-2xl font-bold">{student.name}</DialogTitle>
+              <DialogDescription>{student.program}</DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+        <div className="space-y-6 py-4 max-h-[60vh] overflow-y-auto pr-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Contact & Personal</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center gap-3">
+                    <AtSign className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <a href={`mailto:${student.email}`} className="hover:underline break-all">{student.email}</a>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <span>{student.contact.phone}</span>
+                </div>
+                 <div className="flex items-center gap-3">
+                    <Cake className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <span>Born on {format(new Date(student.dateOfBirth), "PPP")}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                    <Pin className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <span>{student.contact.address}</span>
+                </div>
+            </CardContent>
+          </Card>
+
+           <Card>
+            <CardHeader>
+              <CardTitle className="font-headline text-lg flex items-center gap-2"><StudentsIcon className="w-5 h-5 text-primary" /> Family & Education</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center gap-3">
+                    <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <div>
+                        <p className="text-muted-foreground text-xs">Parent's Name</p>
+                        <p className="font-medium">{student.parentName}</p>
+                    </div>
+                </div>
+                 <div className="flex items-center gap-3">
+                    <GraduationCap className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                     <div>
+                        <p className="text-muted-foreground text-xs">Last Diploma (Ijazah)</p>
+                        <p className="font-medium">{student.previousEducation}</p>
+                    </div>
+                </div>
+            </CardContent>
+          </Card>
+          
+           <Card>
+            <CardHeader>
+              <CardTitle className="font-headline text-lg">Documents</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+                <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">KTP Number</span>
+                    <span className="font-mono font-medium">{student.ktpNumber || 'N/A'}</span>
+                </div>
+                 <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">KK Number</span>
+                    <span className="font-mono font-medium">{student.kkNumber || 'N/A'}</span>
+                </div>
+            </CardContent>
+          </Card>
+
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 export default function FinanceProposalDetailPage() {
   const params = useParams() as { id: string };
   const router = useRouter();
   const { toast } = useToast();
+  const [selectedStudent, setSelectedStudent] = React.useState<Student | null>(null);
 
   const proposal = React.useMemo(() => proposals.find((p) => p.id === params.id), [params.id]);
 
@@ -90,11 +192,9 @@ export default function FinanceProposalDetailPage() {
                             <p className="text-sm text-muted-foreground">{student.program}</p>
                         </div>
                    </div>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/lpk/students/${student.id}`} target="_blank">
-                        View Profile
-                        <User className="ml-2 h-4 w-4" />
-                      </Link>
+                    <Button variant="outline" size="sm" onClick={() => setSelectedStudent(student)}>
+                      View Profile
+                      <User className="ml-2 h-4 w-4" />
                     </Button>
                 </div>
               ))}
@@ -142,6 +242,11 @@ export default function FinanceProposalDetailPage() {
           </Card>
         </div>
       </div>
+      <StudentDetailModal 
+        student={selectedStudent} 
+        open={!!selectedStudent} 
+        onOpenChange={(open) => !open && setSelectedStudent(null)} 
+      />
     </div>
   );
 }

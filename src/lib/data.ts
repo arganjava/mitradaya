@@ -94,6 +94,8 @@ export const students = [
     dateOfBirth: "2000-05-20",
     previousEducation: "SMA Negeri 1 Jakarta",
     parentName: "Slamet Hartono",
+    ktpNumber: "3171234567890001",
+    kkNumber: "3171098765430002",
     progress: 75,
     contact: {
       phone: "081234567890",
@@ -118,6 +120,8 @@ export const students = [
     dateOfBirth: "1999-11-10",
     previousEducation: "SMK Telkom Bandung",
     parentName: "Asep Sunandar",
+    ktpNumber: "3273123456780003",
+    kkNumber: "3273087654320004",
     progress: 100,
     contact: {
       phone: "081234567891",
@@ -142,6 +146,8 @@ export const students = [
     dateOfBirth: "2001-02-25",
     previousEducation: "SMA Gajah Mada",
     parentName: "Joko Widodo",
+    ktpNumber: "3578123456780005",
+    kkNumber: "3578076543210006",
     progress: 40,
      contact: {
       phone: "081234567892",
@@ -166,6 +172,8 @@ export const students = [
     dateOfBirth: "2002-08-17",
     previousEducation: "MAN 2 Medan",
     parentName: "Bambang Pamungkas",
+    ktpNumber: "1271123456780007",
+    kkNumber: "1271065432100008",
     progress: 20,
      contact: {
       phone: "081234567893",
@@ -190,6 +198,8 @@ export const students = [
     dateOfBirth: "2001-09-15",
     previousEducation: "SMA Negeri 1 Denpasar",
     parentName: "I Wayan Suardika",
+    ktpNumber: "5171123456780009",
+    kkNumber: "5171054321090010",
     progress: 60,
     contact: {
       phone: "081234567894",
@@ -214,6 +224,8 @@ export const students = [
     dateOfBirth: "2000-12-30",
     previousEducation: "SMA Muhammadiyah Yogyakarta",
     parentName: "Siti Nurhaliza",
+    ktpNumber: "3471123456780011",
+    kkNumber: "3471043210980012",
     progress: 80,
     contact: {
       phone: "081234567895",
