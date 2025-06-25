@@ -1,5 +1,4 @@
 
-
 export const financialProviders = [
   {
     id: "danacepat-finance",
@@ -306,6 +305,7 @@ export const proposals = [
     amount: "Rp 50.000.000",
     submittedDate: "2024-05-20",
     status: "Approved",
+    installmentDueDate: 5,
   },
   {
     id: "prop-002",
@@ -317,6 +317,7 @@ export const proposals = [
     amount: "Rp 35.000.000",
     submittedDate: "2024-05-22",
     status: "Pending",
+    installmentDueDate: 10,
   },
   {
     id: "prop-003",
@@ -328,6 +329,7 @@ export const proposals = [
     amount: "Rp 90.000.000",
     submittedDate: "2024-05-18",
     status: "Rejected",
+    installmentDueDate: 15,
   },
   {
     id: "prop-004",
@@ -339,5 +341,6 @@ export const proposals = [
     amount: "Rp 15.000.000",
     submittedDate: "2024-05-25",
     status: "Pending",
+    installmentDueDate: 20,
   },
 ];
