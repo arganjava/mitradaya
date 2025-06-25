@@ -28,6 +28,8 @@ import { useToast } from "@/hooks/use-toast";
 const profileFormSchema = z.object({
   providerName: z.string().min(2, "Provider name must be at least 2 characters."),
   contactEmail: z.string().email("Please enter a valid email address."),
+  phone: z.string().min(10, "A valid phone number is required."),
+  address: z.string().min(10, "A valid address is required."),
   website: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
   description: z.string().max(300, "Description cannot exceed 300 characters.").min(10, "Description must be at least 10 characters."),
   loanScheme: z.string().min(3, "Loan scheme is required."),
@@ -40,6 +42,8 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 const defaultValues: Partial<ProfileFormValues> = {
   providerName: "DanaCepat Finance",
   contactEmail: "contact@danacepat.com",
+  phone: "+622112345678",
+  address: "Financial Tower, 12th Floor, Jl. Jend. Sudirman Kav. 52-53, Jakarta",
   website: "https://www.danacepat.com",
   description: "Quick and easy financing for certified training programs with competitive rates.",
   loanScheme: "Personal Loans & Education Credit",
@@ -96,20 +100,20 @@ export default function FinanceSettingsPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-8">
+                  <FormField
+                    control={form.control}
+                    name="providerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Provider Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., DanaCepat Finance" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <div className="grid md:grid-cols-2 gap-8">
-                    <FormField
-                      control={form.control}
-                      name="providerName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Provider Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., DanaCepat Finance" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                     <FormField
                       control={form.control}
                       name="contactEmail"
@@ -118,6 +122,19 @@ export default function FinanceSettingsPage() {
                           <FormLabel>Contact Email</FormLabel>
                           <FormControl>
                             <Input type="email" placeholder="e.g., contact@provider.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input type="tel" placeholder="+62 ..." {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -133,6 +150,24 @@ export default function FinanceSettingsPage() {
                         <FormLabel>Website</FormLabel>
                         <FormControl>
                           <Input placeholder="https://your-website.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Your company's full address"
+                            className="resize-none"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
