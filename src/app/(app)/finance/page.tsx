@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -6,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Activity, Users, DollarSign, MoreHorizontal } from "lucide-react";
+import { Activity, Users, DollarSign, MoreHorizontal, CheckCircle2, UserPlus, FilePenLine } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -27,9 +28,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { format } from "date-fns";
-import { proposals } from "@/lib/data";
+import { format, formatDistanceToNow } from "date-fns";
+import { proposals, students } from "@/lib/data";
 import Link from 'next/link';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const statusVariant: {
   [key: string]: "default" | "secondary" | "destructive" | "outline";
@@ -38,6 +40,62 @@ const statusVariant: {
   Pending: "secondary",
   Rejected: "destructive",
 };
+
+
+const userActivities = [
+    {
+        id: 1,
+        userName: "Rina Marlina",
+        userAvatar: "https://placehold.co/100x100.png",
+        dataAiHint: "female portrait",
+        action: "Approved loan for Budi Hartono.",
+        timestamp: new Date(new Date().getTime() - 2 * 60 * 60 * 1000), // 2 hours ago
+        icon: <CheckCircle2 className="h-5 w-5 text-green-500" />
+    },
+    {
+        id: 2,
+        userName: "Joko Susilo",
+        userAvatar: "https://placehold.co/100x100.png",
+        dataAiHint: "male portrait",
+        action: "Added a new user: Lina Wati.",
+        timestamp: new Date(new Date().getTime() - 18 * 60 * 60 * 1000), // 18 hours ago
+        icon: <UserPlus className="h-5 w-5 text-blue-500" />
+    },
+    {
+        id: 3,
+        userName: "Rina Marlina",
+        userAvatar: "https://placehold.co/100x100.png",
+        dataAiHint: "female portrait",
+        action: "Updated profile information.",
+        timestamp: new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+        icon: <FilePenLine className="h-5 w-5 text-orange-500" />
+    }
+];
+
+const recentPayments = [
+    {
+        id: 1,
+        student: students.find(s => s.id === 'std-001'),
+        amount: "Rp 4.166.667",
+        date: new Date(new Date().setDate(new Date().getDate() - 1)),
+        lpkName: "LPK Jaya Abadi"
+    },
+    {
+        id: 2,
+        student: students.find(s => s.id === 'std-005'),
+        amount: "Rp 4.166.667",
+        date: new Date(new Date().setDate(new Date().getDate() - 2)),
+        lpkName: "LPK Jaya Abadi"
+    },
+    {
+        id: 3,
+        student: students.find(s => s.id === 'std-002'),
+        amount: "Rp 2.916.667",
+        date: new Date(new Date().setDate(new Date().getDate() - 3)),
+        lpkName: "LPK Sukses Mandiri"
+    }
+];
+
 
 export default function FinanceDashboardPage() {
   return (
@@ -101,20 +159,70 @@ export default function FinanceDashboardPage() {
               </CardContent>
             </Card>
           </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Partnership Requests</CardTitle>
-              <CardDescription>
-                Review and respond to new partnership requests from LPKs.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Partnership request features will be available in a future
-                update.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Recent Activity</CardTitle>
+                    <CardDescription>An overview of recent user actions within the system.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        {userActivities.map(activity => (
+                            <div key={activity.id} className="flex items-start gap-4">
+                                <div className="flex-shrink-0">{activity.icon}</div>
+                                <div className="flex-grow">
+                                    <p className="text-sm">
+                                        <span className="font-semibold">{activity.userName}</span> {activity.action}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
+                                    </p>
+                                </div>
+                                <Avatar className="h-8 w-8 flex-shrink-0">
+                                    <AvatarImage src={activity.userAvatar} alt={activity.userName} data-ai-hint={activity.dataAiHint} />
+                                    <AvatarFallback>{activity.userName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                </Avatar>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Recent Payments</CardTitle>
+                    <CardDescription>A log of recent installment payments from students.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Student</TableHead>
+                                <TableHead className="text-right">Amount</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {recentPayments.map(payment => payment.student && (
+                                <TableRow key={payment.id}>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-9 w-9">
+                                                <AvatarImage src={payment.student.avatar} alt={payment.student.name} data-ai-hint={payment.student.dataAiHint} />
+                                                <AvatarFallback>{payment.student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <p className="font-medium">{payment.student.name}</p>
+                                                <p className="text-xs text-muted-foreground">Paid on {format(payment.date, "PPP")}</p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium">{payment.amount}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+          </div>
         </TabsContent>
         <TabsContent value="proposals" className="space-y-4">
           {/* Desktop Table View */}
