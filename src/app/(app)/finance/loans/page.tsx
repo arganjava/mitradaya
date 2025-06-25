@@ -567,7 +567,7 @@ export default function LoansPage() {
                 <Card key={detail.id} className="overflow-hidden">
                   <CardHeader className="flex flex-row items-start justify-between gap-4 p-4">
                     <div className="flex items-center gap-3 overflow-hidden">
-                      {detail.student && (
+                      {detail.student ? (
                         <>
                           <Avatar>
                             <AvatarImage src={detail.student.avatar} alt={detail.student.name} data-ai-hint={detail.student.dataAiHint} />
@@ -578,6 +578,8 @@ export default function LoansPage() {
                             <p className="text-sm text-muted-foreground truncate">{detail.student.email}</p>
                           </div>
                         </>
+                      ) : (
+                         <div className="font-medium">Student not found</div>
                       )}
                     </div>
                     <DropdownMenu>
@@ -661,3 +663,5 @@ export default function LoansPage() {
     </div>
   );
 }
+
+    
