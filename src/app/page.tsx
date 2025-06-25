@@ -12,7 +12,7 @@ export default function Home() {
       </div>
       <div className="flex flex-col items-center text-center max-w-4xl">
         <h1 className="font-headline text-4xl sm:text-5xl md:text-7xl font-bold text-primary">
-          Welcome to SkillBridge
+          Welcome to Mitradaya
         </h1>
         <p className="mt-4 text-base sm:text-lg text-foreground/80 max-w-2xl">
           Connecting Job Training Providers (LPK) with Financial Services. Choose your role to get started and unlock new opportunities.

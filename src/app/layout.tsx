@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'SkillBridge',
+  title: 'Mitradaya',
   description: 'Connecting LPK and Financial Service Providers',
 };
 
