@@ -30,7 +30,9 @@ const profileFormSchema = z.object({
   contactEmail: z.string().email("Please enter a valid email address."),
   website: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
   description: z.string().max(300, "Description cannot exceed 300 characters.").min(10, "Description must be at least 10 characters."),
-  financingSchemes: z.string().min(10, "Please describe your financing schemes."),
+  loanScheme: z.string().min(3, "Loan scheme is required."),
+  loanDuration: z.string().min(3, "Loan duration is required."),
+  loanInterest: z.string().min(1, "Interest rate is required."),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -40,7 +42,9 @@ const defaultValues: Partial<ProfileFormValues> = {
   contactEmail: "contact@danacepat.com",
   website: "https://www.danacepat.com",
   description: "Quick and easy financing for certified training programs with competitive rates.",
-  financingSchemes: "We offer personal loans and education credit with flexible repayment terms. Our focus is on supporting students in vocational and tech training programs.",
+  loanScheme: "Personal Loans & Education Credit",
+  loanDuration: "6-24 months",
+  loanInterest: "Starts from 1.5% per month",
 };
 
 export default function FinanceSettingsPage() {
@@ -163,29 +167,68 @@ export default function FinanceSettingsPage() {
                <Card>
                 <CardHeader>
                     <CardTitle>Financing Package</CardTitle>
-                    <CardDescription>Describe the financing options you provide for LPK students.</CardDescription>
+                    <CardDescription>Detail the terms of the financing you offer.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-8">
                      <FormField
                         control={form.control}
-                        name="financingSchemes"
+                        name="loanScheme"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Financing Schemes</FormLabel>
+                            <FormLabel>Loan Scheme</FormLabel>
                             <FormControl>
-                            <Textarea
-                                placeholder="Describe the financing options you provide..."
-                                className="min-h-[200px]"
+                            <Input
+                                placeholder="e.g., Personal Loan, Education Credit"
                                 {...field}
                             />
                             </FormControl>
                             <FormDescription>
-                            Detail the types of loans, interest rates, requirements, and benefits.
+                            What type of financing do you offer?
                             </FormDescription>
                             <FormMessage />
                         </FormItem>
                         )}
                     />
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <FormField
+                            control={form.control}
+                            name="loanDuration"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Duration</FormLabel>
+                                <FormControl>
+                                <Input
+                                    placeholder="e.g., 6-24 months"
+                                    {...field}
+                                />
+                                </FormControl>
+                                <FormDescription>
+                                What is the repayment period?
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="loanInterest"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Interest Rate</FormLabel>
+                                <FormControl>
+                                <Input
+                                    placeholder="e.g., 1.5% per month"
+                                    {...field}
+                                />
+                                </FormControl>
+                                <FormDescription>
+                                What is the interest rate?
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    </div>
                 </CardContent>
                </Card>
             </TabsContent>
