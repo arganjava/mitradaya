@@ -93,6 +93,7 @@ export type Loan = {
   submittedDate: string;
   installmentDueDate: number;
   virtualAccountNumber: string | null;
+  bank: string | null;
   status: 'Active' | 'Paid Off' | 'Overdue';
 };
 
@@ -118,6 +119,7 @@ export default function LoansPage() {
       loan.studentIds.map(studentId => {
         const student = students.find(s => s.id === studentId);
         const amountNum = parseFloat(loan.amount.replace(/[^0-9.-]+/g,""));
+        const virtualAccount = (loan as any).virtualAccounts?.[studentId];
         return {
           id: `${loan.id}-${studentId}`,
           student: student,
@@ -128,8 +130,8 @@ export default function LoansPage() {
           estimatedInstallment: `Rp ${(amountNum / 12).toLocaleString('id-ID', {maximumFractionDigits: 0})}`,
           submittedDate: loan.submittedDate,
           installmentDueDate: loan.installmentDueDate,
-          // @ts-ignore
-          virtualAccountNumber: loan.virtualAccountNumbers?.[studentId] || null,
+          virtualAccountNumber: virtualAccount?.number || null,
+          bank: virtualAccount?.bank || null,
           status: 'Active',
         };
       })
@@ -196,10 +198,11 @@ export default function LoansPage() {
         } else {
             // Add new loan and generate VA
             const loanId = `loan-${Date.now()}`;
+            const bank = 'Mandiri';
             const { virtualAccountNumber } = await generateVirtualAccount({ 
                 studentName: student.name, 
                 loanId, 
-                bank: 'Mandiri' 
+                bank
             });
 
             const newLoan: Loan = {
@@ -213,6 +216,7 @@ export default function LoansPage() {
                 submittedDate: new Date().toISOString(),
                 installmentDueDate: data.installmentDueDate,
                 virtualAccountNumber,
+                bank,
                 status: 'Active',
             };
             setLoans(prevLoans => [newLoan, ...prevLoans]);
@@ -232,12 +236,13 @@ export default function LoansPage() {
     if (!loan.student) return;
     toast({ title: 'Generating...', description: 'A new virtual account is being generated.'});
     try {
+        const bank = 'BCA';
         const { virtualAccountNumber } = await generateVirtualAccount({ 
             studentName: loan.student.name, 
             loanId: loan.id, 
-            bank: 'BCA' 
+            bank
         });
-        setLoans(prevLoans => prevLoans.map(l => l.id === loan.id ? { ...l, virtualAccountNumber } : l));
+        setLoans(prevLoans => prevLoans.map(l => l.id === loan.id ? { ...l, virtualAccountNumber, bank } : l));
         toast({ title: 'VA Regenerated!', description: `New VA for ${loan.student.name} is ready.` });
     } catch (error) {
         console.error("Error regenerating VA:", error);
@@ -401,7 +406,10 @@ export default function LoansPage() {
                        <TableCell>
                           {detail.virtualAccountNumber ? (
                              <div className="flex items-center gap-2">
-                                <span className="font-mono text-sm">{detail.virtualAccountNumber}</span>
+                                <div>
+                                    <span className="font-mono text-sm">{detail.virtualAccountNumber}</span>
+                                    <div className="text-xs text-muted-foreground">{detail.bank}</div>
+                                </div>
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopyVA(detail.virtualAccountNumber)}>
                                     <Copy className="h-4 w-4" />
                                 </Button>

@@ -52,6 +52,7 @@ export default function FinanceLoanDetailPage() {
             loan.studentIds.map(studentId => {
                 const student = students.find(s => s.id === studentId);
                 const amountNum = parseFloat(loan.amount.replace(/[^0-9.-]+/g,""));
+                const virtualAccount = (loan as any).virtualAccounts?.[studentId];
                 return {
                     id: `${loan.id}-${studentId}`,
                     student: student,
@@ -62,7 +63,8 @@ export default function FinanceLoanDetailPage() {
                     estimatedInstallment: `Rp ${(amountNum / 12).toLocaleString('id-ID', {maximumFractionDigits: 0})}`,
                     submittedDate: loan.submittedDate,
                     installmentDueDate: loan.installmentDueDate,
-                    virtualAccountNumber: loan.virtualAccountNumbers?.[studentId] || null,
+                    virtualAccountNumber: virtualAccount?.number || null,
+                    bank: virtualAccount?.bank || null,
                     status: 'Active',
                 } as Loan;
             })
@@ -160,7 +162,14 @@ export default function FinanceLoanDetailPage() {
                     </div>
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">Virtual Account</span>
-                        <span className="font-mono font-medium">{loan.virtualAccountNumber ?? 'N/A'}</span>
+                         {loan.virtualAccountNumber ? (
+                            <div className="text-right">
+                                <span className="font-mono font-medium">{loan.virtualAccountNumber}</span>
+                                <p className="text-xs text-muted-foreground">{loan.bank}</p>
+                            </div>
+                        ) : (
+                            <span className="font-mono font-medium">N/A</span>
+                        )}
                     </div>
                 </div>
             </CardContent>

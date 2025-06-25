@@ -306,9 +306,9 @@ export const proposals = [
     submittedDate: "2024-05-20",
     status: "Approved",
     installmentDueDate: 5,
-    virtualAccountNumbers: {
-        "std-001": "892300010001",
-        "std-005": "892300010005"
+    virtualAccounts: {
+        "std-001": { number: "892300010001", bank: "BCA" },
+        "std-005": { number: "892300010005", bank: "Permata" }
     }
   },
   {
