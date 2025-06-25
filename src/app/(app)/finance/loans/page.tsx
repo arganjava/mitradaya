@@ -57,9 +57,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Copy, Loader2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Loader2, Search, ArrowUp, ArrowDown } from "lucide-react";
 import { proposals, students, type Student } from "@/lib/data";
-import { generateVirtualAccount, type GenerateVAInput } from "@/ai/flows/generate-va-flow";
+import { generateVirtualAccount } from "@/ai/flows/generate-va-flow";
 
 // Helper function to add ordinal suffix
 function getDayWithSuffix(day: number) {
@@ -103,12 +103,20 @@ const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | 
   Overdue: "destructive",
 };
 
+type SortableColumn = 'studentName' | 'lpkName' | 'amount' | 'submittedDate' | 'status';
+
 export default function LoansPage() {
   const { toast } = useToast();
   const [loans, setLoans] = React.useState<Loan[]>([]);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [editingLoan, setEditingLoan] = React.useState<Loan | null>(null);
   const [isGenerating, setIsGenerating] = React.useState(false);
+
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [sorting, setSorting] = React.useState<{ column: SortableColumn; direction: 'asc' | 'desc' }>({ column: 'studentName', direction: 'asc' });
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const loansPerPage = 5;
 
   const lpkNames = React.useMemo(() => [...new Set(proposals.map(p => p.lpkName))], []);
 
@@ -250,12 +258,72 @@ export default function LoansPage() {
     }
   }
   
-  const handleCopyVA = (va: string | null) => {
-    if (va) {
-      navigator.clipboard.writeText(va);
-      toast({ title: 'Copied!', description: 'Virtual account number copied to clipboard.'});
-    }
-  }
+  const handleSort = (column: SortableColumn) => {
+    setSorting(prevSorting => ({
+      column,
+      direction: prevSorting.column === column && prevSorting.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, sorting]);
+
+
+  const processedLoans = React.useMemo(() => {
+     let processed = loans
+      .filter(loan =>
+        (loan.student?.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+         loan.lpkName.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+      .filter(loan =>
+        statusFilter === "all" || loan.status === statusFilter
+      );
+      
+    processed.sort((a, b) => {
+      const column = sorting.column;
+      const direction = sorting.direction === 'asc' ? 1 : -1;
+      
+      let aValue: string | number, bValue: string | number;
+
+      switch (column) {
+          case 'studentName':
+              aValue = a.student?.name.toLowerCase() || '';
+              bValue = b.student?.name.toLowerCase() || '';
+              break;
+          case 'amount':
+              aValue = parseFloat(a.amount.replace(/[^0-9.-]+/g, ""));
+              bValue = parseFloat(b.amount.replace(/[^0-9.-]+/g, ""));
+              break;
+          case 'submittedDate':
+              aValue = new Date(a.submittedDate).getTime();
+              bValue = new Date(b.submittedDate).getTime();
+              break;
+          case 'lpkName':
+              aValue = a.lpkName.toLowerCase();
+              bValue = b.lpkName.toLowerCase();
+              break;
+          case 'status':
+              aValue = a.status.toLowerCase();
+              bValue = b.status.toLowerCase();
+              break;
+      }
+
+      if (aValue < bValue) return -1 * direction;
+      if (aValue > bValue) return 1 * direction;
+      return 0;
+  });
+    
+    return processed;
+  }, [loans, searchQuery, statusFilter, sorting]);
+
+  const totalPages = Math.ceil(processedLoans.length / loansPerPage);
+
+  const paginatedLoans = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * loansPerPage;
+    return processedLoans.slice(startIndex, startIndex + loansPerPage);
+  }, [processedLoans, currentPage]);
+
 
   return (
     <div className="space-y-8">
@@ -364,23 +432,79 @@ export default function LoansPage() {
           <CardDescription>A list of all approved financing proposals, detailed by student.</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+            <div className="relative flex-1 w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder="Search by student or LPK..."
+                className="pl-10 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Paid Off">Paid Off</SelectItem>
+                    <SelectItem value="Overdue">Overdue</SelectItem>
+                </SelectContent>
+            </Select>
+          </div>
           <div className="border rounded-md">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>LPK</TableHead>
-                  <TableHead>Total Amount</TableHead>
-                  <TableHead>Submitted</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('studentName')} className="px-1">
+                        Student
+                        {sorting.column === 'studentName' ? (
+                            sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                        ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('lpkName')} className="px-1">
+                        LPK
+                        {sorting.column === 'lpkName' ? (
+                            sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                        ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('amount')} className="px-1">
+                        Total Amount
+                        {sorting.column === 'amount' ? (
+                            sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                        ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                     <Button variant="ghost" onClick={() => handleSort('submittedDate')} className="px-1">
+                        Submitted
+                        {sorting.column === 'submittedDate' ? (
+                            sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                        ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
                   <TableHead>Installment Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Virtual Account</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort('status')} className="px-1">
+                        Status
+                        {sorting.column === 'status' ? (
+                            sorting.direction === 'asc' ? <ArrowUp className="ml-2 h-4 w-4 inline-block" /> : <ArrowDown className="ml-2 h-4 w-4 inline-block" />
+                        ) : <span className="ml-2 h-4 w-4 inline-block" />}
+                    </Button>
+                  </TableHead>
                   <TableHead><span className="sr-only">Actions</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loans.length > 0 ? (
-                  loans.map((detail) => (
+                {paginatedLoans.length > 0 ? (
+                  paginatedLoans.map((detail) => (
                     <TableRow key={detail.id}>
                       <TableCell>
                         {detail.student ? (
@@ -403,19 +527,6 @@ export default function LoansPage() {
                        <TableCell>
                         <Badge variant={statusVariant[detail.status]}>{detail.status}</Badge>
                       </TableCell>
-                       <TableCell>
-                          {detail.virtualAccountNumber ? (
-                             <div className="flex items-center gap-2">
-                                <div>
-                                    <span className="font-mono text-sm">{detail.virtualAccountNumber}</span>
-                                    <div className="text-xs text-muted-foreground">{detail.bank}</div>
-                                </div>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopyVA(detail.virtualAccountNumber)}>
-                                    <Copy className="h-4 w-4" />
-                                </Button>
-                             </div>
-                          ) : 'Not generated'}
-                      </TableCell>
                        <TableCell className="text-right">
                          <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -437,7 +548,7 @@ export default function LoansPage() {
                   ))
                 ) : (
                    <TableRow>
-                      <TableCell colSpan={8} className="h-24 text-center">
+                      <TableCell colSpan={7} className="h-24 text-center">
                           No active loans found.
                       </TableCell>
                     </TableRow>
@@ -445,6 +556,31 @@ export default function LoansPage() {
               </TableBody>
             </Table>
           </div>
+           {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-6">
+                <div className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                    >
+                    Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages || totalPages === 0}
+                    >
+                    Next
+                    </Button>
+                </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
