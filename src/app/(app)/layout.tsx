@@ -32,6 +32,32 @@ import { cn } from "@/lib/utils";
 
 function MobileBottomNav({ isLpk }: { isLpk: boolean }) {
   const pathname = usePathname();
+  const isProgramsPage = pathname.startsWith('/lpk/programs');
+  const [isVisible, setIsVisible] = React.useState(!isProgramsPage);
+
+  React.useEffect(() => {
+    if (!isProgramsPage) {
+      setIsVisible(true);
+      return;
+    }
+
+    const handleScroll = () => {
+      // Show nav if scrolled down, hide if near top
+      if (window.scrollY > 100) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    handleScroll(); // Check on mount to set initial visibility based on scroll position
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isProgramsPage]);
+
   const menuItems = isLpk ? [
     { href: "/lpk", label: "Finance", icon: <Landmark /> },
     { href: "/lpk/students", label: "Students", icon: <GraduationCap /> },
@@ -47,7 +73,10 @@ function MobileBottomNav({ isLpk }: { isLpk: boolean }) {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border md:hidden">
+    <div className={cn(
+      "fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border md:hidden transition-transform duration-300 ease-in-out",
+      isVisible ? "translate-y-0" : "translate-y-full"
+    )}>
       <div className={cn("grid h-full max-w-lg mx-auto font-medium", isLpk ? "grid-cols-6" : "grid-cols-4")}>
         {menuItems.map((item) => (
            <Link
