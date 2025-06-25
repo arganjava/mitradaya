@@ -60,6 +60,7 @@ import {
 import { MoreHorizontal, PlusCircle, Loader2, Search, ArrowUp, ArrowDown } from "lucide-react";
 import { proposals, students, type Student } from "@/lib/data";
 import { generateVirtualAccount } from "@/ai/flows/generate-va-flow";
+import { Separator } from "@/components/ui/separator";
 
 // Helper function to add ordinal suffix
 function getDayWithSuffix(day: number) {
@@ -454,7 +455,9 @@ export default function LoansPage() {
                 </SelectContent>
             </Select>
           </div>
-          <div className="border rounded-md">
+
+          {/* Desktop Table View */}
+          <div className="border rounded-md hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -556,6 +559,78 @@ export default function LoansPage() {
               </TableBody>
             </Table>
           </div>
+          
+          {/* Mobile Card View */}
+          <div className="space-y-4 md:hidden">
+            {paginatedLoans.length > 0 ? (
+              paginatedLoans.map((detail) => (
+                <Card key={detail.id} className="overflow-hidden">
+                  <CardHeader className="flex flex-row items-start justify-between gap-4 p-4">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      {detail.student && (
+                        <>
+                          <Avatar>
+                            <AvatarImage src={detail.student.avatar} alt={detail.student.name} data-ai-hint={detail.student.dataAiHint} />
+                            <AvatarFallback>{detail.student.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                          </Avatar>
+                          <div className="truncate">
+                            <p className="font-medium truncate">{detail.student.name}</p>
+                            <p className="text-sm text-muted-foreground truncate">{detail.student.email}</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link href={`/finance/loans/${detail.id}`}>Manage Loan</Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => { setEditingLoan(detail); setIsModalOpen(true); }}>Edit Loan</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleRegenerateVA(detail)}>Regenerate VA</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="space-y-2 text-sm">
+                      <Separator />
+                      <div className="flex justify-between pt-2">
+                        <span className="text-muted-foreground">LPK</span>
+                        <span className="font-medium text-right">{detail.lpkName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Total Amount</span>
+                        <span className="font-medium text-right">{detail.amount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Submitted</span>
+                        <span className="font-medium text-right">{format(new Date(detail.submittedDate), "PPP")}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Installment Date</span>
+                        <span className="font-medium text-right">{getDayWithSuffix(detail.installmentDueDate)} of each month</span>
+                      </div>
+                       <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Status</span>
+                        <Badge variant={statusVariant[detail.status]}>{detail.status}</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+                <div className="h-24 text-center text-muted-foreground flex items-center justify-center">
+                  No active loans found.
+                </div>
+            )}
+          </div>
+
+
            {totalPages > 1 && (
             <div className="flex items-center justify-between pt-6">
                 <div className="text-sm text-muted-foreground">
