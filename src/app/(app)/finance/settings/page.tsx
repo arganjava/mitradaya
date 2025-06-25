@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -44,6 +45,8 @@ const defaultValues: Partial<ProfileFormValues> = {
 
 export default function FinanceSettingsPage() {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = React.useState("profile");
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -65,29 +68,30 @@ export default function FinanceSettingsPage() {
         <p className="mt-2 text-muted-foreground">Manage your profile, account, and preferences.</p>
       </header>
 
-      <Tabs defaultValue="profile" className="space-y-4">
+      <Tabs defaultValue="profile" className="space-y-4" onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="profile">Company Profile</TabsTrigger>
+          <TabsTrigger value="financing">Financing Package</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <div className="flex items-start gap-6">
-                <div className="flex-shrink-0">
-                  <Image src="https://placehold.co/128x128.png" alt="Provider Logo" width={128} height={128} className="rounded-lg border p-1" data-ai-hint="finance logo" />
-                  <Button variant="outline" size="sm" className="w-full mt-2">Change Logo</Button>
-                </div>
-                <div className="flex-grow">
-                  <CardTitle className="font-headline text-2xl">Provider Information</CardTitle>
-                  <CardDescription>This is how your profile will appear to LPKs.</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <TabsContent value="profile" className="mt-0">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0">
+                      <Image src="https://placehold.co/128x128.png" alt="Provider Logo" width={128} height={128} className="rounded-lg border p-1" data-ai-hint="finance logo" />
+                      <Button variant="outline" size="sm" className="w-full mt-2">Change Logo</Button>
+                    </div>
+                    <div className="flex-grow">
+                      <CardTitle className="font-headline text-2xl">Provider Information</CardTitle>
+                      <CardDescription>This is how your profile will appear to LPKs.</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-8">
                   <div className="grid md:grid-cols-2 gap-8">
                     <FormField
                       control={form.control}
@@ -151,36 +155,49 @@ export default function FinanceSettingsPage() {
                       </FormItem>
                     )}
                   />
-                  
-                  <FormField
-                    control={form.control}
-                    name="financingSchemes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Financing Schemes</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Describe the financing options you provide..."
-                            className="min-h-[120px]"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Detail the types of loans, interest rates, requirements, and benefits.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="financing" className="mt-0">
+               <Card>
+                <CardHeader>
+                    <CardTitle>Financing Package</CardTitle>
+                    <CardDescription>Describe the financing options you provide for LPK students.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                     <FormField
+                        control={form.control}
+                        name="financingSchemes"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Financing Schemes</FormLabel>
+                            <FormControl>
+                            <Textarea
+                                placeholder="Describe the financing options you provide..."
+                                className="min-h-[200px]"
+                                {...field}
+                            />
+                            </FormControl>
+                            <FormDescription>
+                            Detail the types of loans, interest rates, requirements, and benefits.
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </CardContent>
+               </Card>
+            </TabsContent>
 
-                  <div className="flex justify-end">
+            {activeTab !== 'account' && (
+                <div className="flex justify-end">
                     <Button type="submit">Save Changes</Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </div>
+            )}
+          </form>
+        </Form>
+        
         <TabsContent value="account">
           <Card>
             <CardHeader>
