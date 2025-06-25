@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -48,6 +49,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { programs as initialPrograms, students } from "@/lib/data";
+import { Separator } from "@/components/ui/separator";
 
 const programFormSchema = z.object({
   name: z.string().min(3, "Program name must be at least 3 characters."),
@@ -152,8 +154,9 @@ export default function ProgramsPage() {
           </DialogContent>
         </Dialog>
       </header>
-
-      <Card>
+      
+      {/* Desktop Table View */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Program List</CardTitle>
           <CardDescription>A list of all available training programs.</CardDescription>
@@ -200,6 +203,48 @@ export default function ProgramsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Mobile Card View */}
+       <div className="space-y-4 md:hidden">
+         <h3 className="text-xl font-semibold">Program List</h3>
+        {programsWithStudentCount.map((program) => (
+          <Card key={program.id}>
+            <CardHeader className="flex-row items-start justify-between">
+              <CardTitle className="text-lg leading-snug">{program.name}</CardTitle>
+               <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 -mt-2 -mr-2">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+            </CardHeader>
+            <CardContent>
+                <Separator className="-mx-6 mb-4 w-auto" />
+                <div className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Duration</span>
+                        <span className="font-medium">{program.duration}</span>
+                    </div>
+                     <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Enrolled Students</span>
+                        <div className="flex items-center gap-2 font-medium">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span>{program.studentCount} student(s)</span>
+                        </div>
+                    </div>
+                </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
+
