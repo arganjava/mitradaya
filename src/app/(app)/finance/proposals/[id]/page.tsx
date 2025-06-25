@@ -8,7 +8,7 @@ import { proposals, students, type Student } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Calendar, Users as StudentsIcon, DollarSign, AtSign, Phone, Pin, Cake, GraduationCap } from "lucide-react";
+import { ArrowLeft, User, Calendar, Users as StudentsIcon, DollarSign, AtSign, Phone, Pin, Cake, GraduationCap, Briefcase } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
@@ -108,6 +108,30 @@ function StudentDetailModal({ student, open, onOpenChange }: { student: Student 
                 </div>
             </CardContent>
           </Card>
+
+          {student.jobOffer && (
+             <Card>
+                <CardHeader>
+                <CardTitle className="font-headline text-lg flex items-center gap-2"><Briefcase className="w-5 h-5 text-primary" /> Job Offer</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center gap-4">
+                        <span className="text-muted-foreground">Company</span>
+                        <span className="font-medium text-right">{student.jobOffer.company}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Position</span>
+                        <span className="font-medium">{student.jobOffer.position}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Offer Letter</span>
+                        <Button variant="outline" size="sm" asChild>
+                            <a href={student.jobOffer.documentUrl} target="_blank" rel="noopener noreferrer">View Document</a>
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+          )}
 
         </div>
         <DialogFooter>

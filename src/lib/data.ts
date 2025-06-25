@@ -106,6 +106,11 @@ export const students = [
       "SEO": "B+",
       "SEM": "A-",
       "Social Media": "In Progress"
+    },
+    jobOffer: {
+      company: "Mitsubishi Heavy Industries, Japan",
+      position: "Welder",
+      documentUrl: "#"
     }
   },
   {
@@ -132,6 +137,11 @@ export const students = [
       "JavaScript": "A",
       "React": "A-",
       "Node.js": "B+"
+    },
+    jobOffer: {
+        company: "CareStaff Co., Ltd. Japan",
+        position: "Caregiver",
+        documentUrl: "#"
     }
   },
   {
