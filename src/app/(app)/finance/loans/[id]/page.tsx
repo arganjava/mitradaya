@@ -190,6 +190,23 @@ export default function FinanceLoanDetailPage() {
     notFound();
   }
 
+  const handleApprove = () => {
+    toast({
+      title: "Loan Approved",
+      description: "The loan has been approved for disbursement.",
+    });
+    router.push("/finance/loans");
+  };
+
+  const handleReject = () => {
+    toast({
+      variant: "destructive",
+      title: "Loan Rejected",
+      description: "The loan has been rejected.",
+    });
+    router.push("/finance/loans");
+  };
+
   return (
     <div className="space-y-6 md:space-y-8">
       <Link href="/finance/loans" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -347,6 +364,10 @@ export default function FinanceLoanDetailPage() {
                     </div>
                 </div>
             </CardContent>
+            <CardFooter className="flex justify-end gap-2">
+                <Button variant="destructive" onClick={handleReject}>Reject Loan</Button>
+                <Button onClick={handleApprove}>Approve Loan</Button>
+            </CardFooter>
           </Card>
           <Card>
              <CardHeader>
