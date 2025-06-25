@@ -48,7 +48,7 @@ function MobileBottomNav({ isLpk }: { isLpk: boolean }) {
 
   return (
     <div className={cn("fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border md:hidden")}>
-      <div className={cn("grid h-full max-w-lg mx-auto font-medium", isLpk ? "grid-cols-6" : "grid-cols-4")}>
+      <div className={cn("grid h-full w-full font-medium", isLpk ? "grid-cols-6" : "grid-cols-4")}>
         {menuItems.map((item) => (
            <Link
             key={item.href}
