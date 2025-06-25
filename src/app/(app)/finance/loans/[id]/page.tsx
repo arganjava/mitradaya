@@ -8,17 +8,23 @@ import { proposals, students, type Student } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, DollarSign, PiggyBank, Receipt, Hash, BarChart } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, PiggyBank, Receipt, Hash } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { format } from 'date-fns';
+import { format, addMonths } from 'date-fns';
 import type { Loan } from "../page";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
   Active: "default",
   'Paid Off': "secondary",
   Overdue: "destructive",
+};
+
+const paymentStatusVariant: { [key: string]: "secondary" | "destructive" } = {
+    Paid: "secondary",
+    Due: "destructive",
 };
 
 // Helper function to add ordinal suffix
@@ -63,6 +69,30 @@ export default function FinanceLoanDetailPage() {
         );
     return allLoans.find(l => l.id === params.id);
   }, [params.id]);
+
+  const paymentHistory = React.useMemo(() => {
+    if (!loan) return [];
+    const history = [];
+    const startDate = new Date(loan.submittedDate);
+    
+    for (let i = 0; i < 10; i++) {
+      const dueDate = addMonths(startDate, i);
+      dueDate.setDate(loan.installmentDueDate);
+      
+      const status = i < 5 ? 'Paid' : 'Due';
+      const paymentDate = status === 'Paid' ? new Date(dueDate) : null;
+
+      history.push({
+        id: `payment-${i + 1}`,
+        month: format(dueDate, 'MMMM yyyy'),
+        dueDate: format(dueDate, 'PPP'),
+        amount: loan.estimatedInstallment,
+        status: status,
+        paymentDate: paymentDate ? format(paymentDate, 'PPP') : 'N/A',
+      });
+    }
+    return history;
+  }, [loan]);
 
 
   if (!loan || !loan.student) {
@@ -138,13 +168,40 @@ export default function FinanceLoanDetailPage() {
           <Card>
              <CardHeader>
                 <CardTitle className="font-headline text-2xl">Payment History</CardTitle>
-                <CardDescription>Feature coming soon.</CardDescription>
+                <CardDescription>A record of monthly installment payments.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                    <BarChart className="mx-auto h-12 w-12" />
-                    <p className="mt-4">Payment history will be displayed here.</p>
-                </div>
+              <div className="border rounded-md">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Period</TableHead>
+                            <TableHead className="hidden sm:table-cell">Due Date</TableHead>
+                            <TableHead className="text-right">Amount</TableHead>
+                            <TableHead className="text-center">Status</TableHead>
+                            <TableHead className="hidden sm:table-cell text-right">Payment Date</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {paymentHistory.map((payment) => (
+                            <TableRow key={payment.id}>
+                                <TableCell>
+                                    <div className="font-medium">{payment.month}</div>
+                                    <div className="text-muted-foreground sm:hidden text-xs">{payment.dueDate}</div>
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell">{payment.dueDate}</TableCell>
+                                <TableCell className="text-right">{payment.amount}</TableCell>
+                                <TableCell className="text-center">
+                                    <Badge variant={paymentStatusVariant[payment.status]}>
+                                        {payment.status}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell text-right">{payment.paymentDate}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </div>
