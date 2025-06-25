@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -40,12 +41,13 @@ function MobileBottomNav({ isLpk }: { isLpk: boolean }) {
     { href: "/lpk/settings", label: "Personalize", icon: <Settings /> },
   ] : [
     { href: "/finance", label: "Dashboard", icon: <LayoutGrid /> },
+    { href: "/finance/users", label: "Users", icon: <Users /> },
     { href: "/finance/settings", label: "Personalize", icon: <Settings /> },
   ];
 
   return (
     <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t border-border md:hidden">
-      <div className={cn("grid h-full max-w-lg mx-auto font-medium", isLpk ? "grid-cols-6" : "grid-cols-2")}>
+      <div className={cn("grid h-full max-w-lg mx-auto font-medium", isLpk ? "grid-cols-6" : "grid-cols-3")}>
         {menuItems.map((item) => (
            <Link
             key={item.href}
@@ -114,7 +116,14 @@ function AppLayoutClient({ children }: { children: React.ReactNode }) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               </>
-            ) : null }
+            ) : (
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/finance/users" isActive={pathname.startsWith('/finance/users')} tooltip="Users">
+                  <Users />
+                  <span>Users</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ) }
 
             <SidebarMenuItem>
               <SidebarMenuButton href={isLpk ? "/lpk/settings" : "/finance/settings"} isActive={pathname.includes('/settings')} tooltip="Personalize">
