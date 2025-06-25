@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { format } from "date-fns";
+import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import {
   Card,
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -91,6 +93,13 @@ export type Loan = {
   submittedDate: string;
   installmentDueDate: number;
   virtualAccountNumber: string | null;
+  status: 'Active' | 'Paid Off' | 'Overdue';
+};
+
+const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
+  Active: "default",
+  'Paid Off': "secondary",
+  Overdue: "destructive",
 };
 
 export default function LoansPage() {
@@ -121,6 +130,7 @@ export default function LoansPage() {
           installmentDueDate: loan.installmentDueDate,
           // @ts-ignore
           virtualAccountNumber: loan.virtualAccountNumbers?.[studentId] || null,
+          status: 'Active',
         };
       })
     );
@@ -203,6 +213,7 @@ export default function LoansPage() {
                 submittedDate: new Date().toISOString(),
                 installmentDueDate: data.installmentDueDate,
                 virtualAccountNumber,
+                status: 'Active',
             };
             setLoans(prevLoans => [newLoan, ...prevLoans]);
             toast({ title: 'Loan Added', description: `A new loan has been created for ${student.name}.` });
@@ -357,6 +368,7 @@ export default function LoansPage() {
                   <TableHead>Total Amount</TableHead>
                   <TableHead>Submitted</TableHead>
                   <TableHead>Installment Date</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Virtual Account</TableHead>
                   <TableHead><span className="sr-only">Actions</span></TableHead>
                 </TableRow>
@@ -384,6 +396,9 @@ export default function LoansPage() {
                       <TableCell>{format(new Date(detail.submittedDate), "PPP")}</TableCell>
                       <TableCell>{getDayWithSuffix(detail.installmentDueDate)} of each month</TableCell>
                        <TableCell>
+                        <Badge variant={statusVariant[detail.status]}>{detail.status}</Badge>
+                      </TableCell>
+                       <TableCell>
                           {detail.virtualAccountNumber ? (
                              <div className="flex items-center gap-2">
                                 <span className="font-mono text-sm">{detail.virtualAccountNumber}</span>
@@ -402,6 +417,9 @@ export default function LoansPage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/finance/loans/${detail.id}`}>Manage Loan</Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => { setEditingLoan(detail); setIsModalOpen(true); }}>Edit Loan</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleRegenerateVA(detail)}>Regenerate VA</DropdownMenuItem>
                             </DropdownMenuContent>
@@ -411,7 +429,7 @@ export default function LoansPage() {
                   ))
                 ) : (
                    <TableRow>
-                      <TableCell colSpan={7} className="h-24 text-center">
+                      <TableCell colSpan={8} className="h-24 text-center">
                           No active loans found.
                       </TableCell>
                     </TableRow>
