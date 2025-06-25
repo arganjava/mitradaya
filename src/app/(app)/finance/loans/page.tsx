@@ -57,7 +57,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, PlusCircle, Copy, Loader2 } from "lucide-react";
 import { proposals, students, type Student } from "@/lib/data";
-import { generateVirtualAccount } from "@/ai/flows/generate-va-flow";
+import { generateVirtualAccount, type GenerateVAInput } from "@/ai/flows/generate-va-flow";
 
 // Helper function to add ordinal suffix
 function getDayWithSuffix(day: number) {
@@ -75,9 +75,6 @@ const loanFormSchema = z.object({
   lpkName: z.string({ required_error: "Please select an LPK." }),
   studentId: z.string({ required_error: "Please select a student." }),
   amount: z.string().min(1, "Loan amount is required."),
-  principal: z.string().min(1, "Principal amount is required."),
-  margin: z.string().min(1, "Margin is required."),
-  estimatedInstallment: z.string().min(1, "Estimated installment is required."),
   installmentDueDate: z.coerce.number().min(1).max(28, "Due date must be between 1 and 28."),
 });
 
@@ -134,10 +131,8 @@ export default function LoansPage() {
     resolver: zodResolver(loanFormSchema),
     defaultValues: {
       lpkName: "",
+      studentId: "",
       amount: "",
-      principal: "",
-      margin: "",
-      estimatedInstallment: "",
       installmentDueDate: 1,
     }
   });
@@ -148,18 +143,13 @@ export default function LoansPage() {
         studentId: editingLoan.student?.id,
         lpkName: editingLoan.lpkName,
         amount: editingLoan.amount,
-        principal: editingLoan.principal,
-        margin: editingLoan.margin,
-        estimatedInstallment: editingLoan.estimatedInstallment,
         installmentDueDate: editingLoan.installmentDueDate,
       });
     } else {
       form.reset({
         lpkName: "",
+        studentId: "",
         amount: "",
-        principal: "",
-        margin: "",
-        estimatedInstallment: "",
         installmentDueDate: 1,
       });
     }
@@ -173,6 +163,11 @@ export default function LoansPage() {
         setIsGenerating(false);
         return;
     }
+
+    const amountNum = parseFloat(data.amount.replace(/[^0-9.-]+/g, ""));
+    const principal = `Rp ${(amountNum * 0.9).toLocaleString('id-ID')}`;
+    const margin = `Rp ${(amountNum * 0.1).toLocaleString('id-ID')}`;
+    const estimatedInstallment = `Rp ${(amountNum / 12).toLocaleString('id-ID', { maximumFractionDigits: 0 })}`;
     
     try {
         if (editingLoan) {
@@ -182,9 +177,9 @@ export default function LoansPage() {
                 student,
                 lpkName: data.lpkName,
                 amount: data.amount,
-                principal: data.principal,
-                margin: data.margin,
-                estimatedInstallment: data.estimatedInstallment,
+                principal,
+                margin,
+                estimatedInstallment,
                 installmentDueDate: data.installmentDueDate,
             } : l));
             toast({ title: 'Loan Updated', description: `Loan for ${student.name} has been updated.` });
@@ -202,9 +197,9 @@ export default function LoansPage() {
                 student,
                 lpkName: data.lpkName,
                 amount: data.amount,
-                principal: data.principal,
-                margin: data.margin,
-                estimatedInstallment: data.estimatedInstallment,
+                principal,
+                margin,
+                estimatedInstallment,
                 submittedDate: new Date().toISOString(),
                 installmentDueDate: data.installmentDueDate,
                 virtualAccountNumber,
@@ -319,39 +314,6 @@ export default function LoansPage() {
                             <FormItem>
                                 <FormLabel>Total Loan Amount</FormLabel>
                                 <FormControl><Input placeholder="e.g., Rp 25.000.000" {...field} /></FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                     <FormField
-                        control={form.control}
-                        name="principal"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Principal (Pokok)</FormLabel>
-                                <FormControl><Input placeholder="e.g., Rp 22.500.000" {...field} /></FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="margin"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Margin</FormLabel>
-                                <FormControl><Input placeholder="e.g., Rp 2.500.000" {...field} /></FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="estimatedInstallment"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Estimated Installment</FormLabel>
-                                <FormControl><Input placeholder="e.g., Rp 2.083.333" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
