@@ -72,9 +72,12 @@ function getDayWithSuffix(day: number) {
 
 // Zod schema for the loan form
 const loanFormSchema = z.object({
+  lpkName: z.string({ required_error: "Please select an LPK." }),
   studentId: z.string({ required_error: "Please select a student." }),
-  lpkName: z.string().min(3, "LPK name is required."),
   amount: z.string().min(1, "Loan amount is required."),
+  principal: z.string().min(1, "Principal amount is required."),
+  margin: z.string().min(1, "Margin is required."),
+  estimatedInstallment: z.string().min(1, "Estimated installment is required."),
   installmentDueDate: z.coerce.number().min(1).max(28, "Due date must be between 1 and 28."),
 });
 
@@ -85,6 +88,9 @@ export type Loan = {
   student: Student | undefined;
   lpkName: string;
   amount: string;
+  principal: string;
+  margin: string;
+  estimatedInstallment: string;
   submittedDate: string;
   installmentDueDate: number;
   virtualAccountNumber: string | null;
@@ -97,17 +103,23 @@ export default function LoansPage() {
   const [editingLoan, setEditingLoan] = React.useState<Loan | null>(null);
   const [isGenerating, setIsGenerating] = React.useState(false);
 
+  const lpkNames = React.useMemo(() => [...new Set(proposals.map(p => p.lpkName))], []);
+
   // Initialize loans state from approved proposals
   React.useEffect(() => {
     const approvedLoans = proposals.filter(p => p.status === 'Approved');
     const loanDetails = approvedLoans.flatMap(loan => 
       loan.studentIds.map(studentId => {
         const student = students.find(s => s.id === studentId);
+        const amountNum = parseFloat(loan.amount.replace(/[^0-9.-]+/g,""));
         return {
           id: `${loan.id}-${studentId}`,
           student: student,
           lpkName: loan.lpkName,
           amount: loan.amount,
+          principal: `Rp ${(amountNum * 0.9).toLocaleString('id-ID')}`,
+          margin: `Rp ${(amountNum * 0.1).toLocaleString('id-ID')}`,
+          estimatedInstallment: `Rp ${(amountNum / 12).toLocaleString('id-ID', {maximumFractionDigits: 0})}`,
           submittedDate: loan.submittedDate,
           installmentDueDate: loan.installmentDueDate,
           // @ts-ignore
@@ -123,6 +135,9 @@ export default function LoansPage() {
     defaultValues: {
       lpkName: "",
       amount: "",
+      principal: "",
+      margin: "",
+      estimatedInstallment: "",
       installmentDueDate: 1,
     }
   });
@@ -133,10 +148,20 @@ export default function LoansPage() {
         studentId: editingLoan.student?.id,
         lpkName: editingLoan.lpkName,
         amount: editingLoan.amount,
+        principal: editingLoan.principal,
+        margin: editingLoan.margin,
+        estimatedInstallment: editingLoan.estimatedInstallment,
         installmentDueDate: editingLoan.installmentDueDate,
       });
     } else {
-      form.reset();
+      form.reset({
+        lpkName: "",
+        amount: "",
+        principal: "",
+        margin: "",
+        estimatedInstallment: "",
+        installmentDueDate: 1,
+      });
     }
   }, [editingLoan, form]);
 
@@ -157,6 +182,9 @@ export default function LoansPage() {
                 student,
                 lpkName: data.lpkName,
                 amount: data.amount,
+                principal: data.principal,
+                margin: data.margin,
+                estimatedInstallment: data.estimatedInstallment,
                 installmentDueDate: data.installmentDueDate,
             } : l));
             toast({ title: 'Loan Updated', description: `Loan for ${student.name} has been updated.` });
@@ -174,6 +202,9 @@ export default function LoansPage() {
                 student,
                 lpkName: data.lpkName,
                 amount: data.amount,
+                principal: data.principal,
+                margin: data.margin,
+                estimatedInstallment: data.estimatedInstallment,
                 submittedDate: new Date().toISOString(),
                 installmentDueDate: data.installmentDueDate,
                 virtualAccountNumber,
@@ -241,6 +272,26 @@ export default function LoansPage() {
             </DialogHeader>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleAddOrEditLoan)} className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="lpkName"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>LPK Name</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!editingLoan}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select an LPK" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {lpkNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                      <FormField
                         control={form.control}
                         name="studentId"
@@ -261,24 +312,46 @@ export default function LoansPage() {
                             </FormItem>
                         )}
                     />
-                    <FormField
+                     <FormField
                         control={form.control}
-                        name="lpkName"
+                        name="amount"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>LPK Name</FormLabel>
-                                <FormControl><Input placeholder="e.g., LPK Jaya Abadi" {...field} /></FormControl>
+                                <FormLabel>Total Loan Amount</FormLabel>
+                                <FormControl><Input placeholder="e.g., Rp 25.000.000" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                      <FormField
                         control={form.control}
-                        name="amount"
+                        name="principal"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Loan Amount</FormLabel>
-                                <FormControl><Input placeholder="e.g., Rp 25.000.000" {...field} /></FormControl>
+                                <FormLabel>Principal (Pokok)</FormLabel>
+                                <FormControl><Input placeholder="e.g., Rp 22.500.000" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="margin"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Margin</FormLabel>
+                                <FormControl><Input placeholder="e.g., Rp 2.500.000" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="estimatedInstallment"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Estimated Installment</FormLabel>
+                                <FormControl><Input placeholder="e.g., Rp 2.083.333" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
