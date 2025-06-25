@@ -16,6 +16,8 @@ const GenerateFinancialDetailsInputSchema = z.object({
   lpkName: z.string().describe("The name of the LPK."),
   totalAmount: z.string().describe("The total loan amount, e.g., 'Rp 50.000.000'."),
   bank: z.string().describe("The destination bank, e.g., BCA, Mandiri, BNI."),
+  principal: z.string().optional().describe("The principal amount if provided. If not, it will be calculated based on the total amount."),
+  margin: z.string().optional().describe("The margin amount if provided. If not, it will be calculated based on the total amount."),
 });
 export type GenerateFinancialDetailsInput = z.infer<typeof GenerateFinancialDetailsInputSchema>;
 
@@ -36,7 +38,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateFinancialDetailsOutputSchema},
   prompt: `You are a financial analyst and virtual account generation API for an Indonesian bank.
 Your task is to perform two actions:
-1.  Calculate the principal and margin for a loan. A standard split is 90% for the principal and 10% for the margin. Use this as your default unless context suggests otherwise.
+1.  Determine the principal and margin for a loan.
 2.  Create a unique virtual account number based on the provided details.
 
 Loan Details:
@@ -53,9 +55,17 @@ Rules for VA generation:
 - Ensure the final VA output is a string containing only numbers.
 
 Rules for Financial Calculation:
+{{#if principal}}
+- The principal is provided as: {{principal}}. Use this value.
+{{else}}
 - Calculate the principal as 90% of the total amount.
+{{/if}}
+{{#if margin}}
+- The margin is provided as: {{margin}}. Use this value.
+{{else}}
 - Calculate the margin as 10% of the total amount.
-- Format both principal and margin as a string with 'Rp' prefix and Indonesian thousand separators (e.g., "Rp 45.000.000").
+{{/if}}
+- Format the final principal and margin values as a string with 'Rp' prefix and Indonesian thousand separators (e.g., "Rp 45.000.000").
 
 Generate the financial details for this loan for {{bank}}.`,
 });

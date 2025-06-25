@@ -8,7 +8,7 @@ import { proposals, students, type Student } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, DollarSign, PiggyBank, Receipt, Loader2 } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, DollarSign, PiggyBank, Receipt, Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +18,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { generateFinancialDetails } from "@/ai/flows/generate-financial-details-flow";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+
 
 const statusVariant: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
   Active: "default",
@@ -41,13 +47,21 @@ function getDayWithSuffix(day: number) {
   }
 }
 
+interface ModalFormState {
+    amount: string;
+    principal: string;
+    margin: string;
+    startDate: Date | undefined;
+    dueDate: number;
+    bank: string;
+}
+
 export default function FinanceLoanDetailPage() {
   const params = useParams() as { id: string };
   const router = useRouter();
   const { toast } = useToast();
   const [isGeneratingModalOpen, setIsGeneratingModalOpen] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const [selectedBank, setSelectedBank] = React.useState("Mandiri");
   
   const [loan, setLoan] = React.useState<Loan | null | undefined>(() => {
     const allLoans = proposals
@@ -75,6 +89,29 @@ export default function FinanceLoanDetailPage() {
         );
     return allLoans.find(l => l.id === params.id);
   });
+
+  const [modalFormState, setModalFormState] = React.useState<ModalFormState>({
+    amount: '',
+    principal: '',
+    margin: '',
+    startDate: undefined,
+    dueDate: 1,
+    bank: 'Mandiri'
+  });
+
+  const handleModalOpenChange = (open: boolean) => {
+    if (open && loan) {
+        setModalFormState({
+            amount: loan.amount,
+            principal: loan.principal,
+            margin: loan.margin,
+            startDate: new Date(loan.submittedDate),
+            dueDate: loan.installmentDueDate,
+            bank: loan.bank || 'Mandiri'
+        })
+    }
+    setIsGeneratingModalOpen(open);
+  }
   
   const handleGenerateDetails = async () => {
     if (!loan || !loan.student) return;
@@ -85,18 +122,23 @@ export default function FinanceLoanDetailPage() {
             loanId: loan.id,
             studentName: loan.student.name,
             lpkName: loan.lpkName,
-            totalAmount: loan.amount,
-            bank: selectedBank,
+            totalAmount: modalFormState.amount,
+            bank: modalFormState.bank,
+            principal: modalFormState.principal,
+            margin: modalFormState.margin,
         });
         
         setLoan(prevLoan => {
             if (!prevLoan) return null;
             return {
                 ...prevLoan,
+                amount: modalFormState.amount,
                 principal: result.principal,
                 margin: result.margin,
+                submittedDate: modalFormState.startDate ? modalFormState.startDate.toISOString() : prevLoan.submittedDate,
+                installmentDueDate: modalFormState.dueDate,
                 virtualAccountNumber: result.virtualAccountNumber,
-                bank: selectedBank,
+                bank: modalFormState.bank,
             }
         });
 
@@ -171,31 +213,77 @@ export default function FinanceLoanDetailPage() {
                   <CardTitle className="font-headline text-2xl">Financial Overview</CardTitle>
                   <CardDescription>A summary of the loan amounts and terms.</CardDescription>
                 </div>
-                <Dialog open={isGeneratingModalOpen} onOpenChange={setIsGeneratingModalOpen}>
+                <Dialog open={isGeneratingModalOpen} onOpenChange={handleModalOpenChange}>
                   <DialogTrigger asChild>
                     <Button variant="outline">Generate Details</Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                       <DialogTitle>Generate Financial Details & VA</DialogTitle>
                       <DialogDescription>
-                        Select a bank to generate a new virtual account and recalculate principal/margin.
+                        Edit details below and select a bank to regenerate financial info and a new virtual account.
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <label htmlFor="bank-select" className="text-sm font-medium">Bank</label>
-                        <Select value={selectedBank} onValueChange={setSelectedBank}>
-                          <SelectTrigger id="bank-select">
-                            <SelectValue placeholder="Select a bank" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="BCA">BCA</SelectItem>
-                            <SelectItem value="BNI">BNI</SelectItem>
-                            <SelectItem value="Mandiri">Mandiri</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="modal-amount">Nominal Loan</Label>
+                            <Input id="modal-amount" value={modalFormState.amount} onChange={(e) => setModalFormState(s => ({...s, amount: e.target.value}))} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="modal-principal">Principal</Label>
+                                <Input id="modal-principal" value={modalFormState.principal} onChange={(e) => setModalFormState(s => ({...s, principal: e.target.value}))} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="modal-margin">Margin</Label>
+                                <Input id="modal-margin" value={modalFormState.margin} onChange={(e) => setModalFormState(s => ({...s, margin: e.target.value}))} />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="modal-start-date">Loan Start Date</Label>
+                                <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    id="modal-start-date"
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !modalFormState.startDate && "text-muted-foreground"
+                                    )}
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {modalFormState.startDate ? format(modalFormState.startDate, "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={modalFormState.startDate}
+                                    onSelect={(date) => setModalFormState(s => ({...s, startDate: date || undefined}))}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                                </Popover>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="modal-due-date">Installment Due Date</Label>
+                                <Input id="modal-due-date" type="number" value={modalFormState.dueDate} onChange={(e) => setModalFormState(s => ({...s, dueDate: parseInt(e.target.value) || 1}))} />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="bank-select">Bank</Label>
+                            <Select value={modalFormState.bank} onValueChange={(value) => setModalFormState(s => ({...s, bank: value}))}>
+                            <SelectTrigger id="bank-select">
+                                <SelectValue placeholder="Select a bank" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="BCA">BCA</SelectItem>
+                                <SelectItem value="BNI">BNI</SelectItem>
+                                <SelectItem value="Mandiri">Mandiri</SelectItem>
+                            </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <DialogFooter>
                       <Button type="button" variant="ghost" onClick={() => setIsGeneratingModalOpen(false)}>Cancel</Button>
